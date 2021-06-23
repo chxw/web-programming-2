@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Google Search</title>
+        <title>Google Image Search</title>
         <link rel="stylesheet" href="styles.css">
     </head>
     <body>
-        <h1>Google Search</h1>
+        <h1>Google Image Search</h1>
         <a href="google-images.html">Images</a>
         <a href="google-advanced.html">Advanced Search</a>
         <form style="text-align: center;" action="https://google.com/search">
+            <input type="hidden" name="tbm" value="isch" /> 
             <input type="text" name="q">
             <!-- this value is included as a GET parameter in the URL -->
             <input type="submit" value="Google Search">
