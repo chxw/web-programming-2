@@ -6,12 +6,18 @@
     </head>
     <body>
         <h1>Google Search</h1>
-        <a href="google-images.html">Images</a>
-        <a href="google-advanced.html">Advanced Search</a>
-        <form style="text-align: center;" action="https://google.com/search">
-            <input type="text" name="q">
-            <!-- this value is included as a GET parameter in the URL -->
-            <input type="submit" value="Google Search">
+        <div class = "row">
+            <div class="column link"><a href="google-images.html">Images</a></div>
+            <div class="column link"><a href="google-advanced.html">Advanced Search</a></div>
+        </div>
+        <form action="https://google.com/search">
+                <div class="row">
+                    <div class="column"><input type="text" name="q"></div>
+                </div>
+                <div class="row">
+                    <div class="column"><input type="submit" value="Google Search"></div>
+                    <div class="column"><input type="submit" value="I'm Feeling Lucky"></div>
+                </div>
         </form>
     </body>
 </html>
