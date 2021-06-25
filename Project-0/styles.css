@@ -12,6 +12,7 @@ a:hover {
 .topnav {
     align-items: center;
     padding: 6px;
+    flex: nowrap;
     flex-shrink: 0;
 }
 

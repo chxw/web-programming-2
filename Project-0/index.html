@@ -9,45 +9,46 @@
 </head>
 
 <body>
+    <!-- TOP NAV -->
     <div class="container">
         <div class="row topnav">
-            <div class="col-sm"></div>
-            <div class="col-sm"></div>
-            <div class="col-sm container">
-                <div class="col-sm header-link">
-                    <div class="header-link">
+            <div class="col"></div>
+            <div class="col-6"></div>
+            <div class="col container">
+                <div>
+                    <div class="col-sm header-link">
                         <a href="google-images.html">Images</a>
                     </div>
-                    <div class="header-link">
+                    <div class="col-sm header-link">
                         <a href="google-advanced.html">Advanced Search</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <!-- GOOGLE LOGO -->
     <center>
         <img src="google_logo.png" alt="Google Search" class="logo">
     </center>
-        <!-- search group inludes CSS for search bar and buttons -->
-        <div class="container search-group">
-            <div class="row">
-                <center>
-                    <form id="search" action="https://google.com/search">
-                        <div class="row">
-                            <div class="column">
-                                <input type="text" name="q">
-                            </div>
+    <!-- SEARCH BAR + BUTTONS -->
+    <div class="container search-group">
+        <div class="row">
+            <center>
+                <form id="search" action="https://google.com/search">
+                    <div class="row">
+                        <div class="column">
+                            <input type="text" name="q">
                         </div>
-                    </form>
+                    </div>
+                </form>
+            </center>
+        </div>
+        <div class="row">
+            <div class="button-group">
+                <center>
+                    <input type="submit" form="search" name="btnK" value="Google Search">
+                    <input type="submit" form="search" name="btnI" value="I'm Feeling Lucky">
                 </center>
-            </div>
-            <div class="row">
-                <div class="button-group">
-                    <center>
-                        <input type="submit" form="search" name="btnK" value="Google Search">
-                        <input type="submit" form="search" name="btnI" value="I'm Feeling Lucky">
-                    </center>
-                </div>
             </div>
         </div>
     </div>
