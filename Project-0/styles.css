@@ -1,3 +1,4 @@
+/* || General styles */
 a {
     font: 13px/27px Roboto,RobotoDraft,Arial,sans-serif;
     color: rgba(0,0,0,0.87);
@@ -9,6 +10,28 @@ a:hover {
     text-decoration: underline;
 }
 
+.container {
+    padding: 6px
+}
+
+/* || Typography */
+
+body, input, button {
+    font-size: 14px;
+    font-family: Roboto,arial,sans-serif;
+    color: #222;
+}
+
+
+/* || Hero section (Google logo) */
+
+.logo {
+    height: 92px;
+    aspect-ratio: auto 272 / 92;
+}
+
+/* || Top navigation bar */
+
 .topnav {
     align-items: center;
     padding: 6px;
@@ -16,27 +39,36 @@ a:hover {
     flex-shrink: 0;
 }
 
-.logo {
-    height: 92px;
-    aspect-ratio: auto 272 / 92;
-}
-
-.container {
-    padding: 6px
-}
-
 .header-link {
     display: inline-block;
     padding-left: 15px;
 }
 
-label {
-    font-size: 13px !important;
-    float: left;
+/* || General search */
+
+.search-group {
+    width: auto;
+    max-width: 584px;
+    padding: 20px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    display: block;
+    margin: 0 auto;
+}
+
+button {
+    display: none; 
+    overflow: hidden; 
+    text-align: center; 
+    z-index: 50;
+}
+
+.button-group {
+    padding-top: 18px;
 }
 
 input[type=text] {
-    display: flex;
+    width: 100%; 
     border: 1px solid #dfe1e5;
     border-radius: 24px;
     height: 44px;
@@ -44,16 +76,6 @@ input[type=text] {
     padding-left: 16px;
     padding-right: 16px;
     padding-top: 2px;
-}
-
-#all, #exact, #any, #none  {
-    font-size: 13px !important;
-    padding-bottom: 1px;
-    padding-left: 8px;
-    padding-right: 8px;
-    padding-top: 1px;
-    width: 100%;
-    border-radius: 0px !important;
 }
 
 input[type=submit] {
@@ -79,6 +101,27 @@ input[type=submit]:hover {
     color: #202124;
 }
 
+/* || Advanced Search */
+
+#search > .row {
+    margin: 15px;
+}
+
+label {
+    font-size: 13px !important;
+    float: left;
+}
+
+#all, #exact, #any, #none  {
+    font-size: 13px !important;
+    padding-bottom: 1px;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-top: 1px;
+    width: 100%;
+    border-radius: 0px !important;
+}
+
 input[value="Advanced Search"]{
     background-color: #4d90fe;
     border: 1px solid #3079ed;
@@ -99,48 +142,8 @@ input[value="Advanced Search"]{
     padding: 0 12px;
 }
 
-.row {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 100%;
-}
-
-.column {
-    display: flex;
-    flex-direction: column;
-    flex-basis: 100%;
-    flex: 1;
-}
-
-.search-group {
-    width: auto;
-    max-width: 584px;
-    padding: 20px;
-    flex-shrink: 0;
-    box-sizing: border-box;
-    display: block;
-    margin: 0 auto;
-}
-
-#search > .row {
-    margin: 15px;
-}
-
-.button-group {
-    padding-top: 18px;
-}
-
-body, input, button {
-    font-size: 14px;
-    font-family: Roboto,arial,sans-serif;
-    color: #222;
-}
-
-button {
-    display: none; 
-    font-family: Roboto, arial, sans-serif; 
-    overflow: hidden; 
-    text-align: center; 
-    z-index: 50;
+input[value="Advanced Search"]:hover {
+    background-color: #357ae8;
+    border: 1px solid #2f5bb7;
+    color: #fff;
 }
