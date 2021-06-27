@@ -27,6 +27,12 @@ button {
 
 /* || Hero section (Google logo) */
 
+.hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .logo {
     height: 92px;
     aspect-ratio: auto 272 / 92;
@@ -49,9 +55,11 @@ button {
 /* || General search */
 
 .search-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     width: auto;
     max-width: 584px;
-    /* padding: 20px; */
     flex-shrink: 0;
     box-sizing: border-box;
     display: block;
@@ -66,6 +74,9 @@ button {
 }
 
 .button-group {
+    display: block;
+    text-align: -webkit-center;
+    flex-wrap: nowrap;
     padding-top: 18px;
 }
 
