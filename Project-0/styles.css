@@ -1,12 +1,12 @@
 /* || General styles */
 a {
-    font: 13px/27px Roboto,RobotoDraft,Arial,sans-serif;
-    color: rgba(0,0,0,0.87);
+    font: 13px/27px Roboto, RobotoDraft, Arial, sans-serif;
+    color: rgba(0, 0, 0, 0.87);
     text-decoration: none;
 }
 
 a:hover {
-    color: rgba(0,0,0,0.87);
+    color: rgba(0, 0, 0, 0.87);
     text-decoration: underline;
 }
 
@@ -16,9 +16,11 @@ a:hover {
 
 /* || Typography */
 
-body, input, button {
+body,
+input,
+button {
     font-size: 14px;
-    font-family: Roboto,arial,sans-serif;
+    font-family: Roboto, arial, sans-serif;
     color: #222;
 }
 
@@ -49,7 +51,7 @@ body, input, button {
 .search-group {
     width: auto;
     max-width: 584px;
-    padding: 20px;
+    /* padding: 20px; */
     flex-shrink: 0;
     box-sizing: border-box;
     display: block;
@@ -57,9 +59,9 @@ body, input, button {
 }
 
 button {
-    display: none; 
-    overflow: hidden; 
-    text-align: center; 
+    display: none;
+    overflow: hidden;
+    text-align: center;
     z-index: 50;
 }
 
@@ -68,7 +70,7 @@ button {
 }
 
 input[type=text] {
-    width: 100%; 
+    width: 100%;
     border: 1px solid #dfe1e5;
     border-radius: 24px;
     height: 44px;
@@ -83,7 +85,7 @@ input[type=submit] {
     border: 1px solid #f8f9fa;
     border-radius: 4px;
     color: #3c4043;
-    font-family: Roboto,arial,sans-serif;
+    font-family: Roboto, arial, sans-serif;
     font-size: 14px;
     margin: 11px 4px;
     padding: 0 16px;
@@ -103,8 +105,9 @@ input[type=submit]:hover {
 
 /* || Advanced Search */
 
-#search > .row {
-    margin: 15px;
+#search>.row {
+    margin-top: 15px;
+    margin-bottom: 15px;
 }
 
 label {
@@ -112,17 +115,16 @@ label {
     float: left;
 }
 
-#all, #exact, #any, #none  {
+#all,
+#exact,
+#any,
+#none {
     font-size: 13px !important;
-    padding-bottom: 1px;
-    padding-left: 8px;
-    padding-right: 8px;
-    padding-top: 1px;
     width: 100%;
     border-radius: 0px !important;
 }
 
-input[value="Advanced Search"]{
+input[value="Advanced Search"] {
     background-color: #4d90fe;
     border: 1px solid #3079ed;
     color: #fff;

@@ -30,48 +30,53 @@
         </a>
     </center>
     <!-- SEARCH BAR + BUTTONS -->
-    <div class="container search-group">
+    <div class="container">
         <div class="row">
-                <form id="search" action="https://google.com/search">
-                    <div class="row">
-                        <div class="col">
-                            <label for="all">all these words: </label>
+            <div class="col-md-8">
+                <div class="row">
+                    <form id="search" action="https://google.com/search">
+                        <div class="row">
+                            <div class="col">
+                                <label for="all">all these words: </label>
+                            </div>
+                            <div class="col-8">
+                                <input id="all" type="text" name="as_q">
+                            </div>
                         </div>
-                        <div class="col-8">
-                            <input id="all" type="text" name="as_q">
+                        <div class="row">
+                            <div class="col">
+                                <label for="exact">this exact word or phrase: </label>
+                            </div>
+                            <div class="col-8">
+                                <input id="exact" type="text" name="as_epq">
+                            </div>
                         </div>
+                        <div class="row">
+                            <div class="col">
+                                <label for="any">any of these words: </label>
+                            </div>
+                            <div class="col-8">
+                                <input id="any" type="text" name="as_oq">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label for="none">none of these words: </label>
+                            </div>
+                            <div class="col-8">
+                                <input id="none" type="text" name="as_eq">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="row">
+                    <div class="col"></div>
+                    <div class="col-8">
+                        <input type="submit" form="search" value="Advanced Search">
                     </div>
-                    <div class="row">
-                        <div class="col">
-                            <label for="exact">this exact word or phrase: </label>
-                        </div>
-                        <div class="col-8">
-                            <input id="exact" type="text" name="as_epq">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <label for="any">any of these words: </label>
-                        </div>
-                        <div class="col-8">
-                            <input id="any" type="text" name="as_oq">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <label for="none">none of these words: </label>
-                        </div>
-                        <div class="col-8">
-                            <input id="none" type="text" name="as_eq">
-                        </div>
-                    </div>
-                </form>
-        </div>
-        <div class="row">
-            <div class="col"></div>
-            <div class="col-8">
-                <input type="submit" form="search" value="Advanced Search">
+                </div>
             </div>
+            <div class="col-md-4"></div>
         </div>
     </div>
 </body>
