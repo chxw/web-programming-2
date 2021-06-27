@@ -14,6 +14,10 @@ a:hover {
     padding: 6px
 }
 
+.line {
+    border-bottom: 1px solid #ebebeb;
+}
+
 /* || Typography */
 
 body,
@@ -36,6 +40,31 @@ button {
 .logo {
     height: 92px;
     aspect-ratio: auto 272 / 92;
+}
+
+.logo-corner {
+    height: 24px;
+    aspect-ratio: auto 272 / 92;
+}
+
+.appbar {
+    margin-bottom: 25px;
+    margin-right: 35px;
+    margin-top: 25px;
+    font-weight: 400;
+    font-family: Roboto,arial,sans-serif;
+}
+
+.appbar > h1 {
+    color: #d93025;
+    font-size: 20px;
+    margin-left: 57px;
+}
+
+.appbar > h2 {
+    color: #333;
+    font-size: 16px;
+    margin-left: 45px;
 }
 
 /* || Top navigation bar */
@@ -116,13 +145,17 @@ input[type=submit]:hover {
 
 /* || Advanced Search */
 
+.advanced-search {
+    margin: 25px 35px;
+}
+
 #search>.row {
     margin-top: 15px;
     margin-bottom: 15px;
 }
 
 label {
-    font-size: 13px !important;
+    font-size: 13px;
     float: left;
 }
 
@@ -130,9 +163,14 @@ label {
 #exact,
 #any,
 #none {
-    font-size: 13px !important;
+    height: 27px;
+    font-size: 13px;
+    padding: 1px 8px;
+    border-radius: 1px;
+    border: 1px solid #d9d9d9;
+    border-top: 1px solid #c0c0c0;
     width: 100%;
-    border-radius: 0px !important;
+    border-radius: 1px;
 }
 
 input[value="Advanced Search"] {
