@@ -30,8 +30,9 @@ wiki/                                       - Outer root
                     search_results.html     - Display search results
                     edit_entry.html         - Edit a page
                     entry.html              - Display an entry
-
 ```
+
+
 # Files:
 ```
 ├── Assignment.md
@@ -75,3 +76,25 @@ wiki/                                       - Outer root
         ├── urls.py
         └── wsgi.py
 ```
+
+# Instructions:
+1. `python3 -m venv venv`
+2. `source venv/bin/activate`
+3. `pip3 install -r requirements.txt`
+4. `python3 manage.py runserver`
+
+# References:
+* https://docs.djangoproject.com/en/3.2/.
+* https://stackoverflow.com/questions/49016255/django-display-contents-of-txt-file-on-the-website
+* https://stackoverflow.com/questions/38847441/django-exception-handling-best-practice-and-sending-customized-error-message
+* https://stackoverflow.com/questions/49465281/how-to-return-404-page-intentionally-in-django
+* https://stackoverflow.com/questions/9266135/django-include-html-not-rendering-correctly/9266364
+* https://stackoverflow.com/questions/57449498/html-data-is-not-rendering-property-in-html-using-python-django
+* https://stackoverflow.com/questions/4848611/rendering-a-template-variable-as-html
+* https://stackoverflow.com/questions/54678389/search-bar-in-django
+* https://stackoverflow.com/questions/4706255/how-to-get-value-from-form-field-in-django-framework
+* https://stackoverflow.com/questions/5827590/css-styling-in-django-forms
+* https://stackoverflow.com/questions/52602663/how-do-i-add-input-type-button-as-a-formfield-in-django
+* https://stackoverflow.com/questions/2080332/django-form-submit-button
+* https://stackoverflow.com/questions/936376/prepopulate-django-non-model-form
+* https://stackoverflow.com/questions/4945802/how-can-i-disable-a-model-field-in-a-django-form
