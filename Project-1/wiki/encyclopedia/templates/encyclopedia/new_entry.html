@@ -1,0 +1,22 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    New entry
+{% endblock %}
+
+{% block body %}
+    <div class="rendered-form">
+        <div class="formbuilder-text form-group field-title">
+            <label for="title" class="formbuilder-text-label">Title<span class="formbuilder-required">*</span></label>
+            <input type="text" placeholder="Subject" class="form-control" name="title" access="false" id="title" required="required" aria-required="true">
+        </div>
+        <div class="formbuilder-textarea form-group field-textarea">
+            <label for="article" class="formbuilder-textarea-label">Article<span class="formbuilder-required">*</label>
+            <textarea type="textarea" placeholder="Describe, detail, or define your subject." class="form-control" name="textarea-1625175413441" access="false" id="textarea-1625175413441" title="Article" required="required" aria-required="true"></textarea>
+        </div>
+        <div class="formbuilder-button form-group field-buttons">
+            <button type="button" class="btn-success btn" name="submit" access="false" id="submit">Submit</button>
+            <button type="button" class="btn-danger btn" name="cancel" access="false" id="cancel">Cancel</button>
+        </div>
+    </div>
+{% endblock %}
