@@ -1,18 +1,16 @@
 from django.http.response import HttpResponse, HttpResponseNotFound
 from django.shortcuts import render
-from django import forms
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.contrib import messages
+
 
 from . import util
 
+from .forms import NewEntryForm, EditEntryForm
+
 import markdown2
 import random as rdm
-
-
-class NewEntryForm(forms.Form):
-    title = forms.CharField(label='title')
-    article = forms.CharField(widget=forms.Textarea, label="article")
 
 
 def index(request):
@@ -55,9 +53,37 @@ def search(request):
         })
 
 
-def new_entry(request):
-    return render(request, "encyclopedia/new_entry.html")
+def new_entry(request):    
+    if request.method == 'POST':
+        print(request.POST)
+        form = NewEntryForm(request.POST)
+        if form.is_valid():
+            title = form.cleaned_data['title']
+            context = form.cleaned_data['context']
+            # check if entry already exists
+            if util.get_entry(title) != None:
+                messages.error(request, 'Entry already exists')
+                return redirect('new-entry')
+            # else
+            else:
+                util.save_entry(title, context)
+                return redirect(reverse('entry', kwargs={'title': title}))
+    else:
+        form = NewEntryForm()
 
+    return render(request, 'encyclopedia/new_entry.html', {'form': form})
+
+def edit_entry(request, title):
+    if request.method == 'POST':
+        form = EditEntryForm(request.POST)
+        if form.is_valid():
+            context = form.cleaned_data['context']
+            util.save_entry(title, context)
+            return redirect(reverse('entry', kwargs={'title': title}))
+    else:
+        form = EditEntryForm(initial={'title': title, 'context': util.get_entry(title)})
+
+    return render(request, 'encyclopedia/new_entry.html', {'form': form})
 
 def random(request):
     entries = util.list_entries()

@@ -5,18 +5,22 @@
 {% endblock %}
 
 {% block body %}
-    <div class="rendered-form">
-        <div class="formbuilder-text form-group field-title">
-            <label for="title" class="formbuilder-text-label">Title<span class="formbuilder-required">*</span></label>
-            <input type="text" placeholder="Subject" class="form-control" name="title" access="false" id="title" required="required" aria-required="true">
-        </div>
-        <div class="formbuilder-textarea form-group field-textarea">
-            <label for="article" class="formbuilder-textarea-label">Article<span class="formbuilder-required">*</label>
-            <textarea type="textarea" placeholder="Describe, detail, or define your subject." class="form-control" name="textarea-1625175413441" access="false" id="textarea-1625175413441" title="Article" required="required" aria-required="true"></textarea>
-        </div>
-        <div class="formbuilder-button form-group field-buttons">
-            <button type="button" class="btn-success btn" name="submit" access="false" id="submit">Submit</button>
-            <button type="button" class="btn-danger btn" name="cancel" access="false" id="cancel">Cancel</button>
-        </div>
+
+{% for message in messages %}
+<div class="w-auto p-3">
+    <div class="alert alert-danger">
+        <a class="close" href="{% url 'new-entry' %}" data-dismiss="alert">×</a>
+        {{ message }}
     </div>
+</div>
+{% endfor %}
+
+<div class="w-auto p-3">
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" class="btn-success btn" value="Submit"/>
+        <a href="{% url 'index' %}" onclick="history.go(-1)" class="btn-danger btn" role="button">Cancel</a>
+    </form>
+</div>
 {% endblock %}

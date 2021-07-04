@@ -1,0 +1,16 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    Edit entry
+{% endblock %}
+
+{% block body %}
+<div class="w-auto p-3">
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" class="btn-success btn" value="Submit"/>
+        <a href="{% url 'index' %}" class="btn-danger btn" role="button">Cancel</a>
+    </form>
+</div>
+{% endblock %}
