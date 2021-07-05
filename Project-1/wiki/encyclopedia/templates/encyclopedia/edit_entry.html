@@ -1,10 +1,12 @@
 {% extends "encyclopedia/layout.html" %}
 
 {% block title %}
-    Edit entry
+    Edit Page
 {% endblock %}
 
 {% block body %}
+<h1>Edit Page</h1>
+<!-- Form -->
 <div class="w-auto p-3">
     <form action="" method="post">
         {% csrf_token %}
