@@ -1,3 +1,14 @@
+a.custom-card,
+a.custom-card:hover {
+    text-decoration: inherit;
+    color: inherit;
+}
+
 body {
     padding: 10px;
+}
+
+#cards-grid {
+    display: flex;
+    flex-wrap: wrap;
 }

@@ -2,25 +2,26 @@
 
 {% block body %}
     <h2>Active Listings</h2>
-
-    <div class="d-flex p-2">
-    {% for listing in listings %}
-        <div class="card mx-2" style="width: 18rem;">
-            <img class="card-img-top" src={{ listing.image }} alt="Image of {{ listing.title }}">
-            <div class="card-body">
-            <h5 class="card-title">{{ listing.title }}</h5>
-            <p class="card-text">{{ listing.description }}</p>
+    <div class="d-flex flex-wrap align-content-start flex-row">
+        {% for listing in listings %}
+        <a href="{% url 'listing' listing.id %}" class="custom-card">
+            <div class="card p-2" style="width: 18rem;">
+                <img class="card-img-top" src={{ listing.image }} alt="Image of {{ listing.title }}">
+                <div class="card-body">
+                <h5 class="card-title">{{ listing.title }}</h5>
+                <p class="card-text">{{ listing.description }}</p>
+                </div>
+                <ul class="list-group list-group-flush">
+                <li class="list-group-item">Starting bid: {{ listing.starting_bid }} </li>
+                <li class="list-group-item">Dapibus ac facilisis in</li>
+                <li class="list-group-item">Vestibulum at eros</li>
+                </ul>
+                <div class="card-body">
+                <a href="#" class="card-link">Card link</a>
+                <a href="#" class="card-link">Another link</a>
+                </div> 
             </div>
-            <ul class="list-group list-group-flush">
-            <li class="list-group-item">Starting bid: {{ listing.starting_bid }} </li>
-            <li class="list-group-item">Dapibus ac facilisis in</li>
-            <li class="list-group-item">Vestibulum at eros</li>
-            </ul>
-            <div class="card-body">
-            <a href="#" class="card-link">Card link</a>
-            <a href="#" class="card-link">Another link</a>
-            </div> 
-        </div>
-    {% endfor %}
+        </a>
+        {% endfor %}
     </div>
 {% endblock %}
