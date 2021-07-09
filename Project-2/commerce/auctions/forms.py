@@ -2,16 +2,18 @@ from django.forms import ModelForm
 from django.forms.widgets import Textarea, TextInput, URLInput, NumberInput
 from auctions.models import Bid, Listing, Comment
 
+
 class ListingForm(ModelForm):
     class Meta:
         model = Listing
         fields = ['title', 'description', 'starting_bid', 'image']
         widgets = {
-            'title': TextInput(attrs={'placeholder':'Title'}),
-            'description': Textarea(attrs={'placeholder':'Description'}),
-            'starting_bid': NumberInput(attrs={'placeholder':'$10'}),
-            'image': URLInput(attrs={'placeholder':'https://.../image.png'})
+            'title': TextInput(attrs={'placeholder': 'Title'}),
+            'description': Textarea(attrs={'placeholder': 'Description'}),
+            'starting_bid': NumberInput(attrs={'placeholder': '$10'}),
+            'image': URLInput(attrs={'placeholder': 'https://.../image.png'})
         }
+
 
 class BidForm(ModelForm):
     class Meta:
@@ -24,10 +26,11 @@ class BidForm(ModelForm):
             })
         }
 
+
 class CommentForm(ModelForm):
     class Meta:
         model = Comment
         fields = ['text']
         widgets = {
-            'text': Textarea(attrs={'placeholder':'What do you want to say?'})
+            'text': Textarea(attrs={'placeholder': 'What do you want to say?'})
         }

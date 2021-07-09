@@ -10,6 +10,7 @@ from .models import User, Category, Listing, Comment, Watchlist
 from .forms import ListingForm, BidForm, CommentForm
 from . import util
 
+
 def index(request):
     return render(request, "auctions/index.html", {
         "listings": Listing.objects.filter(is_active=True)
@@ -77,8 +78,9 @@ def create_listing(request):
             category.save()
         # If not, create new category
         except IntegrityError:
-            category = Category.objects.get(category=request.POST.get('category'))
-        
+            category = Category.objects.get(
+                category=request.POST.get('category'))
+
         # Get user submitted listing
         form = ListingForm(request.POST)
         if form.is_valid():
@@ -100,7 +102,8 @@ def listing(request, id):
     bid_form = None
     comment_form = None
     listing = Listing.objects.get(id=id)
-    on_watchlist = util.check_watchlist(listing, request.user) # True if listing on user's watchlist
+    # True if listing on user's watchlist
+    on_watchlist = util.check_watchlist(listing, request.user)
 
     if request.method == 'POST':
         # Bid on listing
@@ -112,7 +115,8 @@ def listing(request, id):
 
                 # Check bid is valid
                 if listing.current_price >= bid.bid:
-                    messages.error(request, 'Your bid must be larger than current bid.')
+                    messages.error(
+                        request, 'Your bid must be larger than current bid.')
                     return redirect(reverse('listing', kwargs={'id': id}))
 
                 # Check if user is bidding on own item
@@ -124,7 +128,7 @@ def listing(request, id):
                 bid.bidder = request.user
                 bid.listing = listing
                 bid.save()
-                
+
                 # Update and save this page's listing
                 listing.current_price = bid.bid
                 listing.save()
@@ -139,7 +143,7 @@ def listing(request, id):
         elif request.POST.get("Comment"):
             comment_form = CommentForm(request.POST)
 
-             # Check form is valid
+            # Check form is valid
             if comment_form.is_valid():
                 comment = comment_form.save(commit=False)
 
@@ -170,12 +174,13 @@ def listing(request, id):
         'comment_form': comment_form,
         'comments': Comment.objects.filter(listing=listing),
         'on_watchlist': on_watchlist
-        })
+    })
 
 
 def categories(request):
     # Filter active categories
-    categories = [listing.category for listing in Listing.objects.filter(is_active=True)]
+    categories = [
+        listing.category for listing in Listing.objects.filter(is_active=True)]
     # Remove duplicate categories
     categories = set(categories)
     return render(request, "auctions/categories.html", {
@@ -189,9 +194,10 @@ def categories_active(request, id):
         "listings": Listing.objects.filter(category=id, is_active=True)
     })
 
+
 @login_required
 def watchlist(request):
-    # Filter current user's watchlist 
+    # Filter current user's watchlist
     return render(request, "auctions/watchlist.html", {
         "watchlist": Watchlist.objects.filter(watcher=request.user)
     })
