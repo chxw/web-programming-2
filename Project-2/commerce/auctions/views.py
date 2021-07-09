@@ -146,12 +146,13 @@ def listing(request, id):
                 comment.save()
 
                 return redirect(reverse('listing', kwargs={'id': id}))
-
+        # Watchlist
         elif request.POST.get("Watchlist"):
             try:
                 for item in Watchlist.objects.filter(watcher=request.user):
                     if item.listing.id == listing.id:
-                        messages.error(request, 'This item is already on your watchlist.')
+                        Watchlist.objects.get(id=item.id).delete()
+                        messages.error(request, 'Item removed from watchlist.')
                         return redirect(reverse('listing', kwargs={'id': id}))
                 watchlist = Watchlist(watcher=request.user, listing=listing)
                 watchlist.save()
