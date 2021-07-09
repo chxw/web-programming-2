@@ -4,10 +4,11 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
-from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import login_required
 
 from .models import User, Category, Listing, Comment, Watchlist
 from .forms import ListingForm, BidForm, CommentForm
+from . import util
 
 def index(request):
     return render(request, "auctions/index.html", {
@@ -67,6 +68,7 @@ def register(request):
         return render(request, "auctions/register.html")
 
 
+@login_required
 def create_listing(request):
     if request.method == 'POST':
         # Does category exist?
@@ -98,6 +100,7 @@ def listing(request, id):
     bid_form = None
     comment_form = None
     listing = Listing.objects.get(id=id)
+    on_watchlist = util.check_watchlist(listing, request.user) # True if listing on user's watchlist
 
     if request.method == 'POST':
         # Bid on listing
@@ -148,13 +151,12 @@ def listing(request, id):
                 return redirect(reverse('listing', kwargs={'id': id}))
         # Add to/remove from watchlist
         elif request.POST.get("Watchlist"):
-            for item in Watchlist.objects.filter(watcher=request.user):
-                # If listing already on watchlist, remove from watchlist
-                if item.listing.id == listing.id:
-                    Watchlist.objects.get(id=item.id).delete()
-                    messages.error(request, 'Item removed from watchlist.')
-                    return redirect(reverse('listing', kwargs={'id': id}))
-            # If listing not on watchlist, add to watchlist
+            # If listing already on watchlist, remove from watchlist
+            if on_watchlist:
+                Watchlist.objects.get(listing=listing).delete()
+                messages.error(request, 'Item removed from watchlist.')
+                return redirect(reverse('listing', kwargs={'id': id}))
+            # else, add to watchlist
             watchlist = Watchlist(watcher=request.user, listing=listing)
             watchlist.save()
             return redirect(reverse('listing', kwargs={'id': id}))
@@ -166,7 +168,8 @@ def listing(request, id):
         'listing': listing,
         'bid_form': bid_form,
         'comment_form': comment_form,
-        'comments': Comment.objects.filter(listing=listing)
+        'comments': Comment.objects.filter(listing=listing),
+        'on_watchlist': on_watchlist
         })
 
 
@@ -186,7 +189,7 @@ def categories_active(request, id):
         "listings": Listing.objects.filter(category=id, is_active=True)
     })
 
-
+@login_required
 def watchlist(request):
     # Filter current user's watchlist 
     return render(request, "auctions/watchlist.html", {

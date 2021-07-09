@@ -48,13 +48,24 @@
     </ul>
     {% if user.is_authenticated %}
         <!-- WATCHLIST -->
+        {% if on_watchlist %}
         <form action="" method="post">
             {% csrf_token %}
-            <input type="submit" class="btn-dark btn" value="Add" name="Watchlist"/>
+            <button type="submit" class="btn btn-dark" value="Remove" name="Watchlist">
+                &#8722; Watchlist
+            </button>
         </form>
+        {% else %}
+        <form action="" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-dark" value="Add" name="Watchlist">
+                &#43; Watchlist
+            </button>
+        </form>
+        {% endif %}
         <!-- AUCTION UTILITIES -->
         {% if listing.is_active == True %}
-            {% if user != listing.owner%}
+            {% if user != listing.owner %}
             <!-- User can submit a bid if logged in, not the listing owner, and the listing is active -->
                 <!-- Submit bid -->
                 <div class="w-auto p-3">
