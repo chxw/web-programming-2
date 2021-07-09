@@ -5,7 +5,7 @@ class User(AbstractUser):
     watched_listings = models.ManyToManyField('Listing', related_name="watchers", blank=True)
 
 class Category(models.Model):
-    category = models.CharField(max_length=30, null=True)
+    category = models.CharField(max_length=30, unique=True, null=True)
 
 class Listing(models.Model):
     owner = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name="listings")

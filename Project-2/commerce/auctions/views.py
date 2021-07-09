@@ -71,8 +71,12 @@ def create_listing(request):
 
     # Submit create listing form
     if request.method == 'POST':
-        category = Category(category=request.POST.get('category'))
-        category.save()
+        # Does category exist?
+        try:
+            category = Category(category=request.POST.get('category'))
+            category.save()
+        except IntegrityError:
+            category = Category.objects.get(category=request.POST.get('category'))
 
         form = ListingForm(request.POST)
         if form.is_valid():
@@ -144,16 +148,19 @@ def listing(request, id):
                 return redirect(reverse('listing', kwargs={'id': id}))
 
         elif request.POST.get("Watchlist"):
-            # TODO: Check if request.user and listing pair already exists
-
             try:
-                Watchlist.objects.get(watcher=request.user).listing.id == listing.id
-            except ObjectDoesNotExist:
-                messages.error(request, 'This item is already on your watchlist.')
+                for item in Watchlist.objects.filter(watcher=request.user):
+                    if item.listing.id == listing.id:
+                        messages.error(request, 'This item is already on your watchlist.')
+                        return redirect(reverse('listing', kwargs={'id': id}))
                 watchlist = Watchlist(watcher=request.user, listing=listing)
                 watchlist.save()
+                return redirect(reverse('listing', kwargs={'id': id}))
+            except ObjectDoesNotExist:
+                watchlist = Watchlist(watcher=request.user, listing=listing)
+                watchlist.save()
+                return redirect(reverse('listing', kwargs={'id': id}))
 
-            return redirect(reverse('listing', kwargs={'id': id}))
 
     else:
         bid_form = BidForm()
@@ -177,7 +184,7 @@ def categories(request):
 
 def categories_active(request, id):
     return render(request, "auctions/index.html", {
-        "listings": Listing.objects.filter(category=id)
+        "listings": Listing.objects.filter(category=id, is_active=True)
     })
 
 

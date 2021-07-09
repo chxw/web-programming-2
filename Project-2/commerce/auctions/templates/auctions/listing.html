@@ -16,7 +16,16 @@
         </div>
     </div>
     {% endif %}
-    <!-- Item info -->
+    <!-- GENERAL -->
+    <!-- Alert messages -->
+    {% for message in messages %}
+    <div class="w-auto p-3">
+        <div class="alert alert-danger">
+            <a class="close" href="{% url 'listing' listing.id %}" data-dismiss="alert">×</a>
+            {{ message }}
+        </div>
+    </div>
+    {% endfor %}
     <h2>Listing: {{ listing.title }}</h2>
     <img class="img-fluid" src={{ listing.image }} alt="Image of {{ listing.title }}">
     <p>Description: {{ listing.description }}</p>
@@ -42,32 +51,24 @@
             {% csrf_token %}
             <input type="submit" class="btn-dark btn" value="Watchlist" name="Watchlist"/>
         </form>
-
-        {% if user != listing.owner and listing.is_active == True %}
-            <!-- Alert messages -->
-            {% for message in messages %}
-            <div class="w-auto p-3">
-                <div class="alert alert-danger">
-                    <a class="close" href="{% url 'listing' listing.id %}" data-dismiss="alert">×</a>
-                    {{ message }}
+        {% if listing.is_active == True %}
+            {% if user != listing.owner%}
+                <!-- Submit bid -->
+                <div class="w-auto p-3">
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        {{ bid_form.as_p }}
+                        <input type="submit" class="btn-primary btn" value="Bid" name="Bid">
+                    </form>
                 </div>
-            </div>
-            {% endfor %}
-            <!-- Submit bid -->
-            <div class="w-auto p-3">
+            <!-- User can close the auction if they are the list owner -->
+            {% elif user == listing.owner %}
+                <!-- Close auction -->
                 <form action="" method="post">
                     {% csrf_token %}
-                    {{ bid_form.as_p }}
-                    <input type="submit" class="btn-primary btn" value="Bid" name="Bid">
+                    <input type="submit" class="btn-danger btn" value="Close" name="Close"/>
                 </form>
-            </div>
-        <!-- User can close the auction if they are the list owner -->
-        {% elif user == listing.owner %}
-            <!-- Close auction -->
-            <form action="" method="post">
-                {% csrf_token %}
-                <input type="submit" class="btn-danger btn" value="Close" name="Close"/>
-            </form>
+            {% endif %}
         {% endif %}
 
         <!-- COMMENTS -->
