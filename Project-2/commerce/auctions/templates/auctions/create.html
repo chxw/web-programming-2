@@ -5,6 +5,8 @@
     <form action="" method="post">
         {% csrf_token %}
         {{ form.as_p }}
+        <label for="id_title">Category:</label>
+        <input type="text" name="category" placeholder="Category" maxlength="30" required="" id="id_category">
         <input type="submit" class="btn-success btn" value="Submit">
         <a href="{% url 'index' %}" onclick="history.go(-1)" class="btn-danger btn" role="button">Cancel</a>
     </form>

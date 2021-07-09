@@ -1,6 +1,6 @@
 from django.forms import ModelForm
 from django.forms.widgets import Textarea, TextInput, URLInput, NumberInput
-from auctions.models import Bid, Listing
+from auctions.models import Bid, Listing, Comment
 
 class ListingForm(ModelForm):
     class Meta:
@@ -22,4 +22,12 @@ class BidForm(ModelForm):
                 'placeholder': '$10',
                 'class': 'form-control'
             })
+        }
+
+class CommentForm(ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['text']
+        widgets = {
+            'text': Textarea(attrs={'placeholder':'What do you want to say?'})
         }

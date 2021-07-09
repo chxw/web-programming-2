@@ -2,23 +2,37 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 class User(AbstractUser):
-    pass
+    watched_listings = models.ManyToManyField('Listing', related_name="watchers", blank=True)
+
+class Category(models.Model):
+    category = models.CharField(max_length=30, null=True)
 
 class Listing(models.Model):
-    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name="listings")
     title = models.CharField(max_length=30)
     description = models.TextField()
     starting_bid = models.PositiveIntegerField()
     image = models.URLField(blank=True, null=True)
     current_price = models.PositiveIntegerField(blank=True, null=True)
-    
-    # categories = models.TextChoices('Fashion', 'Toys', 'Electronics', 'Home')
-    # category = models.CharField(blank=True, max_length=10, choices=categories.choices)
+    is_active = models.BooleanField(default=True)
+    created_on = models.DateTimeField(auto_now=True)
+    category = models.ForeignKey(Category, null=True, on_delete=models.CASCADE, related_name="listings")
 
-    def update_price(self):
-        qs = Bid.objects.filter(listing=self).order_by('-bid_time')
-        bids = [item.bid for item in qs]
-        self.current_price = bids[0]
+    def winner(self):
+        qs = Bid.objects.filter(listing=self).order_by('-created_on')
+        last_bids = [item.bidder for item in qs]
+        if len(last_bids) != 0:
+            return last_bids[0]
+        else:
+            return None   
+
+    def winning_bid(self):
+        qs = Bid.objects.filter(listing=self).order_by('-created_on')
+        last_bids = [item.bid for item in qs]
+        if len(last_bids) != 0:
+            return last_bids[0]
+        else:
+            return None
 
     def save(self, *args, **kwargs):
         if not self.current_price:
@@ -26,13 +40,19 @@ class Listing(models.Model):
         return super(Listing, self).save(*args, **kwargs)
 
 class Bid(models.Model):
-    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
-    bid = models.PositiveIntegerField(blank=True, null=True)
-    bid_time = models.DateTimeField(auto_now=True)
-    listing = models.ForeignKey(Listing, null=True, on_delete=models.CASCADE)
+    bidder = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name="bids")
+    bid = models.PositiveIntegerField()
+    created_on = models.DateTimeField(auto_now=True)
+    listing = models.ForeignKey(Listing, null=True, on_delete=models.CASCADE, related_name="bids")
 
 class Comment(models.Model):
-    pass
+    author = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name="comments")
+    text = models.TextField()
+    listing = models.ForeignKey(Listing, null=True, on_delete=models.CASCADE, related_name="comments")
+    created_on = models.DateTimeField(auto_now=True)
 
-class Wishlist(models.Model):
-    pass
+class Watchlist(models.Model):
+    watcher = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name="watchlist")
+    listing = models.ForeignKey(Listing, null=True, on_delete=models.CASCADE, related_name="watchlist")
+    class Meta:
+        unique_together = ["watcher", "listing"]

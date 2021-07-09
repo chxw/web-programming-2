@@ -1,16 +1,17 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 
-from .models import User, Listing
-from .forms import ListingForm, BidForm
+from .models import User, Category, Listing, Comment, Watchlist
+from .forms import ListingForm, BidForm, CommentForm
 
 def index(request):
     return render(request, "auctions/index.html", {
-        "listings": Listing.objects.all()
+        "listings": Listing.objects.filter(is_active=True)
     })
 
 
@@ -65,15 +66,22 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
+
 def create_listing(request):
+
+    # Submit create listing form
     if request.method == 'POST':
+        category = Category(category=request.POST.get('category'))
+        category.save()
+
         form = ListingForm(request.POST)
-
         if form.is_valid():
+            # Save new listing information
             listing = form.save(commit=False)
-
-            listing.user = request.user
+            listing.owner = request.user
+            listing.category = category
             listing.save()
+
             return HttpResponseRedirect(reverse("index"))
 
     else:
@@ -82,34 +90,98 @@ def create_listing(request):
     return render(request, 'auctions/create.html', {'form': form})
 
 def listing(request, id):
-    # Get Listing object of current listing page
+    # Initialize variables
+    bid_form = None
+    comment_form = None
     listing = Listing.objects.get(id=id)
 
+    # Submit bid form
     if request.method == 'POST':
-        form = BidForm(request.POST)
-        if form.is_valid():
-            bid = form.save(commit=False)
+        if request.POST.get("Bid"):
+            bid_form = BidForm(request.POST)
+            # Check form is valid
+            if bid_form.is_valid():
+                bid = bid_form.save(commit=False)
 
-            # Check bid is valid
-            if listing.current_price >= bid.bid:
-                messages.error(request, 'Your bid must be larger than current bid.')
+                # Check bid is valid
+                if listing.current_price >= bid.bid:
+                    messages.error(request, 'Your bid must be larger than current bid.')
+                    return redirect(reverse('listing', kwargs={'id': id}))
+
+                # Check if user is bidding on own item
+                if listing.owner == request.user:
+                    messages.error(request, 'You cannot bid on your own item.')
+                    return redirect(reverse('listing', kwargs={'id': id}))
+
+                # Update and save bid instance
+                bid.bidder = request.user
+                bid.listing = listing
+                bid.save()
+                
+                # Update and save this page's listing instance
+                listing.current_price = bid.bid
+                listing.save()
+
+                return redirect(reverse('listing', kwargs={'id': id}))
+        # Close auction
+        elif request.POST.get("Close"):
+            listing.is_active = False
+            listing.save()
+            return redirect(reverse('listing', kwargs={'id': id}))
+        # Comment
+        elif request.POST.get("Comment"):
+            comment_form = CommentForm(request.POST)
+
+             # Check form is valid
+            if comment_form.is_valid():
+                comment = comment_form.save(commit=False)
+
+                # Update and save bid instance
+                comment.author = request.user
+                comment.listing =listing
+                comment.save()
+
                 return redirect(reverse('listing', kwargs={'id': id}))
 
-            # Update and save bid instance
-            bid.user = request.user
-            bid.listing = listing
-            bid.save()
-            
-            # Update and save listing instance
-            listing.update_price()
-            listing.save()
+        elif request.POST.get("Watchlist"):
+            # TODO: Check if request.user and listing pair already exists
 
-            return HttpResponseRedirect(reverse("index"))
+            try:
+                Watchlist.objects.get(watcher=request.user).listing.id == listing.id
+            except ObjectDoesNotExist:
+                messages.error(request, 'This item is already on your watchlist.')
+                watchlist = Watchlist(watcher=request.user, listing=listing)
+                watchlist.save()
+
+            return redirect(reverse('listing', kwargs={'id': id}))
 
     else:
-        form = BidForm()
+        bid_form = BidForm()
+        comment_form = CommentForm()
 
     return render(request, 'auctions/listing.html', {
         'listing': listing,
-        'form': form
+        'bid_form': bid_form,
+        'comment_form': comment_form,
+        'comments': Comment.objects.filter(listing=listing)
         })
+
+
+def categories(request):
+    categories = [listing.category for listing in Listing.objects.filter(is_active=True)]
+    categories = set(categories)
+    return render(request, "auctions/categories.html", {
+        'categories': categories
+    })
+
+
+def categories_active(request, id):
+    return render(request, "auctions/index.html", {
+        "listings": Listing.objects.filter(category=id)
+    })
+
+
+def watchlist(request):
+    return render(request, "auctions/watchlist.html", {
+        "watchlist": Watchlist.objects.filter(watcher=request.user)
+    })
