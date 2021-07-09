@@ -8,6 +8,11 @@ body {
     padding: 10px;
 }
 
+.card-horizontal {
+    display: flex;
+    flex: 1 1 auto;
+}
+
 #cards-grid {
     display: flex;
     flex-wrap: wrap;

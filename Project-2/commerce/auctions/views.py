@@ -70,6 +70,8 @@ def register(request):
 
 @login_required
 def create_listing(request):
+    form = None
+
     if request.method == 'POST':
         # Does category exist?
         try:
@@ -82,8 +84,14 @@ def create_listing(request):
         # Get user submitted listing
         form = ListingForm(request.POST)
         if form.is_valid():
-            # Update user and category for listing, then save
             listing = form.save(commit=False)
+
+            # Check starting bid is valid
+            if listing.starting_bid < 0.01:
+                messages.error(request, 'Your bid must be larger than $0.01.')
+                return redirect(reverse('index'))
+
+            # Update user and category for listing, then save
             listing.owner = request.user
             listing.category = category
             listing.save()
@@ -92,7 +100,7 @@ def create_listing(request):
     else:
         form = ListingForm()
 
-    return render(request, 'auctions/create.html', {'form': form})
+    return render(request, 'auctions/create.html', {'form': form })
 
 
 def listing(request, id):
