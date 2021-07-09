@@ -68,30 +68,30 @@ def register(request):
 
 
 def create_listing(request):
-
-    # Submit create listing form
     if request.method == 'POST':
         # Does category exist?
         try:
             category = Category(category=request.POST.get('category'))
             category.save()
+        # If not, create new category
         except IntegrityError:
             category = Category.objects.get(category=request.POST.get('category'))
-
+        
+        # Get user submitted listing
         form = ListingForm(request.POST)
         if form.is_valid():
-            # Save new listing information
+            # Update user and category for listing, then save
             listing = form.save(commit=False)
             listing.owner = request.user
             listing.category = category
             listing.save()
 
             return HttpResponseRedirect(reverse("index"))
-
     else:
         form = ListingForm()
 
     return render(request, 'auctions/create.html', {'form': form})
+
 
 def listing(request, id):
     # Initialize variables
@@ -99,8 +99,8 @@ def listing(request, id):
     comment_form = None
     listing = Listing.objects.get(id=id)
 
-    # Submit bid form
     if request.method == 'POST':
+        # Bid on listing
         if request.POST.get("Bid"):
             bid_form = BidForm(request.POST)
             # Check form is valid
@@ -117,12 +117,12 @@ def listing(request, id):
                     messages.error(request, 'You cannot bid on your own item.')
                     return redirect(reverse('listing', kwargs={'id': id}))
 
-                # Update and save bid instance
+                # Update and save new bid on listing
                 bid.bidder = request.user
                 bid.listing = listing
                 bid.save()
                 
-                # Update and save this page's listing instance
+                # Update and save this page's listing
                 listing.current_price = bid.bid
                 listing.save()
 
@@ -132,7 +132,7 @@ def listing(request, id):
             listing.is_active = False
             listing.save()
             return redirect(reverse('listing', kwargs={'id': id}))
-        # Comment
+        # Comment on listing
         elif request.POST.get("Comment"):
             comment_form = CommentForm(request.POST)
 
@@ -140,29 +140,24 @@ def listing(request, id):
             if comment_form.is_valid():
                 comment = comment_form.save(commit=False)
 
-                # Update and save bid instance
+                # Update and save new comment on listing
                 comment.author = request.user
-                comment.listing =listing
+                comment.listing = listing
                 comment.save()
 
                 return redirect(reverse('listing', kwargs={'id': id}))
-        # Watchlist
+        # Add to/remove from watchlist
         elif request.POST.get("Watchlist"):
-            try:
-                for item in Watchlist.objects.filter(watcher=request.user):
-                    if item.listing.id == listing.id:
-                        Watchlist.objects.get(id=item.id).delete()
-                        messages.error(request, 'Item removed from watchlist.')
-                        return redirect(reverse('listing', kwargs={'id': id}))
-                watchlist = Watchlist(watcher=request.user, listing=listing)
-                watchlist.save()
-                return redirect(reverse('listing', kwargs={'id': id}))
-            except ObjectDoesNotExist:
-                watchlist = Watchlist(watcher=request.user, listing=listing)
-                watchlist.save()
-                return redirect(reverse('listing', kwargs={'id': id}))
-
-
+            for item in Watchlist.objects.filter(watcher=request.user):
+                # If listing already on watchlist, remove from watchlist
+                if item.listing.id == listing.id:
+                    Watchlist.objects.get(id=item.id).delete()
+                    messages.error(request, 'Item removed from watchlist.')
+                    return redirect(reverse('listing', kwargs={'id': id}))
+            # If listing not on watchlist, add to watchlist
+            watchlist = Watchlist(watcher=request.user, listing=listing)
+            watchlist.save()
+            return redirect(reverse('listing', kwargs={'id': id}))
     else:
         bid_form = BidForm()
         comment_form = CommentForm()
@@ -176,7 +171,9 @@ def listing(request, id):
 
 
 def categories(request):
+    # Filter active categories
     categories = [listing.category for listing in Listing.objects.filter(is_active=True)]
+    # Remove duplicate categories
     categories = set(categories)
     return render(request, "auctions/categories.html", {
         'categories': categories
@@ -184,12 +181,14 @@ def categories(request):
 
 
 def categories_active(request, id):
+    # Filter active listings associated with category id (id)
     return render(request, "auctions/index.html", {
         "listings": Listing.objects.filter(category=id, is_active=True)
     })
 
 
 def watchlist(request):
+    # Filter current user's watchlist 
     return render(request, "auctions/watchlist.html", {
         "watchlist": Watchlist.objects.filter(watcher=request.user)
     })

@@ -1,6 +1,7 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
+    <!-- ALERT MESSAGES -->
     <!-- Inactive auction, user is winner -->
     {% if listing.is_active == False and user == listing.winner %}
     <div class="w-auto p-3">
@@ -16,8 +17,7 @@
         </div>
     </div>
     {% endif %}
-    <!-- GENERAL -->
-    <!-- Alert messages -->
+    <!-- Misc. messages -->
     {% for message in messages %}
     <div class="w-auto p-3">
         <div class="alert alert-danger">
@@ -26,15 +26,13 @@
         </div>
     </div>
     {% endfor %}
+    <!-- LISTING -->
+    <!-- Listing details -->
     <h2>Listing: {{ listing.title }}</h2>
     <img class="img-fluid" src={{ listing.image }} alt="Image of {{ listing.title }}">
     <p>Description: {{ listing.description }}</p>
     <h3>Details</h3>
     <ul>
-        <li>Listed by: {{ listing.owner }}</li>
-        <li>Starting bid: ${{ listing.starting_bid }}</li>
-        <li>Created on: {{ listing.created_on }}</li>
-        <li>Category: {{ listing.category.category }}</li>
         <!-- Show current bid if auction is active -->
         {% if listing.is_active == True %}
             <li>Current bid: ${{ listing.current_price}}</li>
@@ -43,16 +41,21 @@
             <li>Winner: {{ listing.winner }}</li>
             <li>Winning bid: {{ listing.winning_bid }}</li>
         {% endif %}
+        <li>Listed by: {{ listing.owner }}</li>
+        <li>Category: {{ listing.category.category }}</li>
+        <li>Starting bid: ${{ listing.starting_bid }}</li>
+        <li>Created on: {{ listing.created_on }}</li>
     </ul>
-
-    <!-- User can submit a bid if logged in, not the listing owner, and the listing is active -->
     {% if user.is_authenticated %}
+        <!-- WATCHLIST -->
         <form action="" method="post">
             {% csrf_token %}
             <input type="submit" class="btn-dark btn" value="Add" name="Watchlist"/>
         </form>
+        <!-- AUCTION UTILITIES -->
         {% if listing.is_active == True %}
             {% if user != listing.owner%}
+            <!-- User can submit a bid if logged in, not the listing owner, and the listing is active -->
                 <!-- Submit bid -->
                 <div class="w-auto p-3">
                     <form action="" method="post">
@@ -70,9 +73,8 @@
                 </form>
             {% endif %}
         {% endif %}
-
-        <!-- COMMENTS -->
-        <!-- Comments section -->
+        <!-- COMMENTS section -->
+        <!-- Display comments -->
         {% for comment in comments %}
         <div class="card mb-3">
             <div class="col-md-8">
@@ -84,7 +86,6 @@
               </div>
         </div>
         {% endfor %}
-
         <!-- Submit comment -->
         <div class="w-auto p-3">
             <form action="" method="post">
@@ -93,7 +94,5 @@
                 <input type="submit" class="btn-primary btn" value="Comment" name="Comment">
             </form>
         </div>
-        
     {% endif %}
-
 {% endblock %}
