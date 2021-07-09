@@ -39,7 +39,7 @@
         <!-- Otherwise, show winning bid/winner -->
         {% else %}
             <li>Winner: {{ listing.winner }}</li>
-            <li>Winning bid: {{ listing.winning_bid }}</li>
+            <li>Winning bid: ${{ listing.winning_bid }}</li>
         {% endif %}
         <li>Listed by: {{ listing.owner }}</li>
         <li>Category: {{ listing.category.category }}</li>
