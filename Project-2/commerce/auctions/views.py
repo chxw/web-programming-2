@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect
+from django.http.response import Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
@@ -12,6 +13,9 @@ from . import util
 
 
 def index(request):
+    '''
+    Display "Active Listings" page with a list of all active listings.
+    '''
     return render(request, "auctions/index.html", {
         "listings": Listing.objects.filter(is_active=True)
     })
@@ -71,15 +75,14 @@ def register(request):
 
 @login_required
 def create_listing(request):
+    '''
+    Display page with form to create new listing. Page is only available to
+    logged in users.
+    '''
     if request.method == 'POST':
-        # Does category exist?
-        try:
-            category = Category(category=request.POST.get('category'))
-            category.save()
-        # If not, create new category
-        except IntegrityError:
-            category = Category.objects.get(
-                category=request.POST.get('category'))
+        # Find existing category or create new one
+        Category.objects.get_or_create(category=request.POST.get('category'))
+        category = Category.objects.get(category=request.POST.get('category'))
 
         # Get user submitted listing
         form = ListingForm(request.POST)
@@ -98,11 +101,16 @@ def create_listing(request):
 
 
 def listing(request, id):
-    # Initialize variables
-    bid_form = None
-    comment_form = None
-    listing = Listing.objects.get(id=id)
-    # True if listing on user's watchlist
+    '''
+    Display page of individual listing. Retrieve all relevant details
+    related to listing from models.
+    '''
+    # Try to get listing from table
+    try:
+        listing = Listing.objects.get(id=id)
+    except Listing.DoesNotExist:
+        raise Http404("Listing does not exist")
+    # Is listing on watchlist?
     on_watchlist = util.check_watchlist(listing, request.user)
 
     if request.method == 'POST':
@@ -178,6 +186,12 @@ def listing(request, id):
 
 
 def categories(request):
+    '''
+    Display "Categories" page with a list of all active categories.
+
+    An active category means there exists at least 1 Listing associated with
+    the Category that is active.  
+    '''
     # Filter active categories
     categories = [
         listing.category for listing in Listing.objects.filter(is_active=True)]
@@ -189,6 +203,10 @@ def categories(request):
 
 
 def categories_active(request, id):
+    '''
+    Display "Active Listings" page and filter all active listings to only
+    include listings associated with requested Category id (id). 
+    '''
     # Filter active listings associated with category id (id)
     return render(request, "auctions/index.html", {
         "listings": Listing.objects.filter(category=id, is_active=True)
@@ -197,6 +215,9 @@ def categories_active(request, id):
 
 @login_required
 def watchlist(request):
+    '''
+    Display all listings included on requesting user's watchlist. 
+    '''
     # Filter current user's watchlist
     return render(request, "auctions/watchlist.html", {
         "watchlist": Watchlist.objects.filter(watcher=request.user)

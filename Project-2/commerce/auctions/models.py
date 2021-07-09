@@ -1,3 +1,4 @@
+from typing import get_args
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -24,21 +25,25 @@ class Listing(models.Model):
     category = models.ForeignKey(
         Category, null=True, on_delete=models.CASCADE, related_name="listings")
 
-    def winner(self):
+    def _get_last_bid(self):
         qs = Bid.objects.filter(listing=self).order_by('-created_on')
-        last_bids = [item.bidder for item in qs]
+        last_bids = [(item.bidder, item.bid) for item in qs]
         if len(last_bids) != 0:
             return last_bids[0]
         else:
             return None
 
+    def winner(self):
+        bid = self._get_last_bid()
+        if bid:
+            return bid[0]  # return bidder
+        return None
+
     def winning_bid(self):
-        qs = Bid.objects.filter(listing=self).order_by('-created_on')
-        last_bids = [item.bid for item in qs]
-        if len(last_bids) != 0:
-            return last_bids[0]
-        else:
-            return None
+        bid = self._get_last_bid()
+        if bid:
+            return bid[1]  # return bid price
+        return None
 
     def save(self, *args, **kwargs):
         if not self.current_price:
