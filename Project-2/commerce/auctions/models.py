@@ -23,7 +23,7 @@ class Listing(models.Model):
     is_active = models.BooleanField(default=True)
     created_on = models.DateTimeField(auto_now=True)
     category = models.ForeignKey(
-        Category, null=True, on_delete=models.CASCADE, related_name="listings")
+        Category, blank=True, null=True, on_delete=models.CASCADE, related_name="listings")
 
     def _get_last_bid(self):
         qs = Bid.objects.filter(listing=self).order_by('-created_on')

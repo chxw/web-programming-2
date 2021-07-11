@@ -80,17 +80,19 @@ def create_listing(request):
     logged in users.
     '''
     if request.method == 'POST':
-        # Find existing category or create new one
-        Category.objects.get_or_create(category=request.POST.get('category'))
-        category = Category.objects.get(category=request.POST.get('category'))
-
         # Get user submitted listing
         form = ListingForm(request.POST)
+
         if form.is_valid():
-            # Update user and category for listing, then save
             listing = form.save(commit=False)
+
+            if request.POST.get('category'):
+                # Find existing category or create new one
+                Category.objects.get_or_create(category=request.POST.get('category'))
+                category = Category.objects.get(category=request.POST.get('category'))
+                listing.category = category
+
             listing.owner = request.user
-            listing.category = category
             listing.save()
 
             return HttpResponseRedirect(reverse("index"))
@@ -194,7 +196,7 @@ def categories(request):
     '''
     # Filter active categories
     categories = [
-        listing.category for listing in Listing.objects.filter(is_active=True)]
+        listing.category for listing in Listing.objects.filter(is_active=True) if listing.category]
     # Remove duplicate categories
     categories = set(categories)
     return render(request, "auctions/categories.html", {
