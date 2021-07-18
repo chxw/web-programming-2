@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
-  document.querySelector('#compose').addEventListener('click', compose_email);
+  document.querySelector('#compose').addEventListener('click', () => compose_email(recipients=null, subject=null, body=null));
 
   // By default, load the inbox
   load_mailbox('inbox');
@@ -12,14 +12,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function compose_email(recipients, subject, body) {
 
-  // Show compose view and hide other views
+  // Show COMPOSE view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
   document.querySelector('#single-email-view').style.display = 'none';
 
   let form = document.getElementById('compose-form');
 
-  // Set variables
+  // Disable recipients and subject inputs if this is a REPLY email
   if (recipients) {
     document.querySelector('#compose-recipients').placeholder = recipients;
     document.querySelector('#compose-recipients').disabled = true;
@@ -30,45 +30,48 @@ function compose_email(recipients, subject, body) {
   }
       
   form.addEventListener('submit', (event) => {
-      // Prevent form submission
-      event.preventDefault();
+    // Prevent default form behavior
+    event.preventDefault();
 
-      if (!recipients) {
-        recipients = document.querySelector('#compose-recipients').value;
-      }
-      if (!subject) {
-        subject = document.querySelector('#compose-subject').value;
-      }
-      if (!body){
-        body = document.querySelector('#compose-body').value;
-      } else {
-        body = "".concat(body, document.querySelector('#compose-body').value);
-      }
+    // Set variables if not set
+    if (!recipients) {
+      recipients = document.querySelector('#compose-recipients').value;
+    }
+    if (!subject) {
+      subject = document.querySelector('#compose-subject').value;
+    }
+    if (!body){
+      body = document.querySelector('#compose-body').value;
+    } else {
+      body = "".concat(body, document.querySelector('#compose-body').value);
+    }
 
-      // Send API POST request of email form
-      fetch('/emails', {
-        method: 'POST',
-        body: JSON.stringify({
-            recipients: recipients,
-            subject: subject,
-            body: body
-        })
+    // Send API a POST request of email form
+    fetch('/emails', {
+      method: 'POST',
+      body: JSON.stringify({
+          recipients: recipients,
+          subject: subject,
+          body: body
       })
-      .then(response => response.json())
-      .then(() => {
-          load_mailbox('sent');
-      });
+    })
+    .then(response => response.json())
+    // After submission, load SENT mailbox
+    .then(() => {
+        form.removeEventListener('submit', event);
+        load_mailbox('sent');
+    });
   });
 
   // Clear out composition fields
-  document.querySelector('#compose-recipients').value = '';
-  document.querySelector('#compose-subject').value = '';
-  document.querySelector('#compose-body').value = '';
+  form.querySelector('#compose-recipients').value = '';
+  form.querySelector('#compose-subject').value = '';
+  form.querySelector('#compose-body').value = '';
 }
 
 function load_mailbox(mailbox) {
   
-  // Show the mailbox and hide other views
+  // Show MAILBOX and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#single-email-view').style.display = 'none';
@@ -85,7 +88,7 @@ function load_mailbox(mailbox) {
   .then(response => response.json())
   .then(emails => {
       let createCard = (email) => {
-        // Create elements of individual card
+        // Style email card
         const card = document.createElement('div');
         card.id = email.id
         card.className = 'card shadow';
@@ -94,6 +97,7 @@ function load_mailbox(mailbox) {
           card.style.setProperty('background-color','gainsboro', '');
         }
 
+        // Fill in email data
         const cardBody = document.createElement('div');
         cardBody.className = 'card-body';
 
@@ -112,10 +116,11 @@ function load_mailbox(mailbox) {
         cardBody.appendChild(subject);
         cardBody.appendChild(timestamp);
         card.appendChild(cardBody);
+
         return card;
       }
 
-      // Iterate through emails and create card and append to div
+      // Iterate through emails, create card, and append to cardContainer div
       let initListOfEmails = () => {
         let cardContainer = document.getElementById('emails-view');
         emails.forEach((email) => {
@@ -127,33 +132,32 @@ function load_mailbox(mailbox) {
       initListOfEmails();
     })
     .then(() => {
+      // Add event listener on all cards to call load_email() function when clicked
       let cards = document.querySelectorAll('.card');
-
       for (let i = 0 ; i < cards.length; i++) {
-        cards[i].addEventListener('click' , (event) => load_email(cards[i].id) , false ); 
+        cards[i].addEventListener('click' , (event) => load_email(cards[i].id, mailbox) , false); 
      }
     });
   }
 
-  function load_email(email_id) {
+  function load_email(email_id, mailbox) {
 
-    // Show the individual email and hide other views
+    // Show the SINGLE EMAIL and hide other views
     document.querySelector('#emails-view').style.display = 'none';
     document.querySelector('#compose-view').style.display = 'none';
     document.querySelector('#single-email-view').style.display = 'block';
 
-    const email_url = "".concat('/emails/',email_id)
-
     // Get individual email
+    const email_url = "".concat('/emails/',email_id)
     fetch(email_url)
     .then(response => response.json())
     .then(email => {
-        // Create HTML to display email
+        // Create container for HTML elements
         let page = document.getElementById('single-email-view');
 
         // Utility elements
-        const br = document.createElement('br');
-        const divider = document.createElement('hr');
+        const br = document.createElement('br'); // Line break
+        const divider = document.createElement('hr'); // Horizontal line
 
         // From, to, subject, and time
         const from = document.createElement('p');
@@ -172,7 +176,7 @@ function load_mailbox(mailbox) {
         const reply = document.createElement('button');
         reply.innerText = "Reply";
         reply.className = "btn btn-sm btn-outline-primary";
-        reply.addEventListener('click', () => reply_to(email));
+        reply.addEventListener('click', () => reply_to(email, mailbox));
 
         // Archive toggle
         const archive = document.createElement('button');
@@ -189,15 +193,14 @@ function load_mailbox(mailbox) {
         const body = document.createElement('p');
         body.innerHTML = email.body;
 
-        items = [from, to, subject, time, reply, archive, divider, body];
-
         // Build view email page structure
+        items = [from, to, subject, time, reply, archive, divider, body];
         for (let i = 0 ; i < items.length; i++) {
           page.append(items[i]);
           page.append(br);
         }
 
-        // Set email read attribute to true
+        // Set email 'read' attribute to true
         read_email(email_url);
     });
 
@@ -239,13 +242,21 @@ function toggle_archive(email_url) {
   });
 }
 
-function reply_to(email) {
-  if (email.subject.slice(0, 1) === "Re"){
-    subject = email.subject.slice(1);
+function reply_to(email, mailbox) {
+  // Clean subject line
+  if (email.subject.slice(0, 4) !== "Re: "){
+    subject = "".concat("Re: ", email.subject);
+  } else {
+    subject = email.subject;
   }
-  subject = "".concat("Re: ", email.subject);
-  body = "".concat("On ", email.timestamp, " ", email.sender, " wrote:", "<br>");
-  console.log(email.sender)
-  console.log(body)
-  compose_email(recipients=email.sender, subject=subject, body=body);
+
+  // Format body
+  body = "".concat("On ", email.timestamp, " ", email.sender, " wrote:", "<br>", email.body);
+
+  // Check if replying to a 'sent' email or non-'sent' email
+  if (mailbox === 'sent') {
+    compose_email(recipients=email.recipients, subject=subject, body=body);
+  } else {
+    compose_email(recipients=email.sender, subject=subject, body=body);
+  }
 }
