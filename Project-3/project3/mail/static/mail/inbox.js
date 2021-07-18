@@ -12,9 +12,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function compose_email() {
 
-  // Show compose view and hide other views
+  // Show COMPOSE view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#single-email-view').style.display = 'none';
 
   let form = document.getElementById('compose-form');
 
@@ -50,9 +51,10 @@ function compose_email() {
 
 function load_mailbox(mailbox) {
   
-  // Show the mailbox and hide other views
+  // Show MAILBOX and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#single-email-view').style.display = 'none';
 
   // Set variables
   const container = document.querySelector('#emails-view')
@@ -60,20 +62,22 @@ function load_mailbox(mailbox) {
   // Show mailbox name
   container.innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
-  // Get emails
-  fetch('/emails/inbox')
+  // Get emails from API
+  mailbox_url = "".concat("/emails/", mailbox)
+  fetch(mailbox_url)
   .then(response => response.json())
   .then(emails => {
-      let cardContainer
-
       let createCard = (email) => {
-        const link = document.createElement('a');
-        link.style = 'color: inherit';
-        link.href = "".concat('emails/',email.id)
-
+        // Style email card
         const card = document.createElement('div');
-        card.className = 'card shadow pe-auto';
+        card.id = email.id
+        card.className = 'card shadow';
+        card.style.setProperty('cursor', 'pointer', '');
+        if (email.read == true) {
+          card.style.setProperty('background-color','gainsboro', '');
+        }
 
+        // Fill in email data
         const cardBody = document.createElement('div');
         cardBody.className = 'card-body';
 
@@ -87,27 +91,133 @@ function load_mailbox(mailbox) {
         timestamp.className = 'float-right';
         timestamp.innerText = email.timestamp;
 
+        // Build card with created elements
         cardBody.appendChild(sender);
         cardBody.appendChild(subject);
         cardBody.appendChild(timestamp);
         card.appendChild(cardBody);
-        link.appendChild(card)
-        cardContainer.appendChild(link);
+
+        return card;
       }
 
+      // Iterate through emails, create card, and append to cardContainer div
       let initListOfEmails = () => {
-        if (cardContainer) {
-            container.innerHTML += cardContainer;
-            return;
-        }
-    
-        cardContainer = document.getElementById('emails-view');
+        let cardContainer = document.getElementById('emails-view');
         emails.forEach((email) => {
-            createCard(email);
+            card = createCard(email);
+            cardContainer.appendChild(card)
         });
       };
 
       initListOfEmails();
-
-  });
+  })
+  .then(() => {
+    // Add event listener on all cards to call load_email() function when clicked
+    let cards = document.querySelectorAll('.card');
+    for (let i = 0 ; i < cards.length; i++) {
+      cards[i].addEventListener('click' , (event) => load_email(cards[i].id, mailbox) , false); 
   }
+  });
+}
+
+function load_email(email_id, mailbox) {
+
+  // Show the SINGLE EMAIL and hide other views
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#single-email-view').style.display = 'block';
+
+  // Get individual email
+  const email_url = "".concat('/emails/',email_id)
+  fetch(email_url)
+  .then(response => response.json())
+  .then(email => {
+      // Create container for HTML elements
+      let page = document.getElementById('single-email-view');
+
+      // Utility elements
+      const br = document.createElement('br'); // Line break
+      const divider = document.createElement('hr'); // Horizontal line
+
+      // From, to, subject, and time
+      const from = document.createElement('p');
+      from.innerHTML = "".concat("<b>", "From:", "</b> ",email.sender);
+      
+      const to = document.createElement('p');
+      to.innerHTML = "".concat("<b>", "To:", "</b> ", email.recipients.join());
+
+      const subject = document.createElement('p');
+      subject.innerHTML = "".concat("<b>", "Subject:", "</b> ", email.subject);
+
+      const time = document.createElement('p');
+      time.innerHTML = "".concat("<b>", "Timestamp:", "</b> ", email.timestamp);
+
+      // Reply button
+      const reply = document.createElement('button');
+      reply.innerText = "Reply";
+      reply.className = "btn btn-sm btn-outline-primary";
+      reply.addEventListener('click', () => reply_to(email, mailbox));
+
+      // Archive toggle
+      const archive = document.createElement('button');
+      if (email.archived == false){
+        archive.innerText = "Archive";
+      } else {
+        archive.innerText = "Unarchive";
+      }
+      archive.id = "archive";
+      archive.className = "btn btn-sm btn-outline-primary";
+      archive.addEventListener('click', () => toggle_archive(email_url));
+      
+      // Body
+      const body = document.createElement('p');
+      body.innerHTML = email.body;
+
+      // Build view email page structure
+      items = [from, to, subject, time, reply, archive, divider, body];
+      for (let i = 0 ; i < items.length; i++) {
+        page.append(items[i]);
+        page.append(br);
+      }
+
+      // Set email 'read' attribute to true
+      read_email(email_url);
+  });
+
+  // Clear page for future loads
+  document.querySelector('#single-email-view').innerHTML = '';
+}
+
+function read_email(email_url) {
+  fetch(email_url, {
+    method: 'PUT',
+    body: JSON.stringify({
+        read: true
+    })
+  });
+}
+
+function toggle_archive(email_url) {
+  fetch(email_url)
+  .then(response => response.json())
+  .then(email => {
+    // Should we archive or unarchive?
+    let set_to
+    if (email.archived == false) {
+      set_to = true;
+    } else {
+      set_to = false;
+    }
+
+    // Update attribute and load archive mailbox
+    fetch(email_url, {
+      method: 'PUT',
+      body: JSON.stringify({
+          archived: set_to
+      })
+    })
+    .then(() => {
+      load_mailbox('archive')
+    });
+  });
+}
