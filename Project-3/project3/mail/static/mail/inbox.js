@@ -4,58 +4,80 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
-  document.querySelector('#compose').addEventListener('click', compose_email);
+  document.querySelector('#compose').addEventListener('click', () => compose_email(recipients=null, subject=null, email_body=null));
 
   // By default, load the inbox
   load_mailbox('inbox');
 });
 
-function compose_email() {
+function compose_email(recipients, subject, email_body) {
 
   // Show COMPOSE view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
   document.querySelector('#single-email-view').style.display = 'none';
 
+  // Disable recipients and subject inputs if this is a REPLY email
+  if (recipients) {
+    document.querySelector('#compose-recipients').placeholder = recipients;
+    document.querySelector('#compose-recipients').disabled = true;
+  }
+  if (subject) {
+    document.querySelector('#compose-subject').placeholder = subject;
+    document.querySelector('#compose-subject').disabled = true;
+  }
+
   let form = document.getElementById('compose-form');
-
   form.addEventListener('submit', (event) => {
-      // Prevent form submission
-      event.preventDefault();
+    // Prevent form submission
+    event.preventDefault();
 
-      // Set variables
-      const recipients = document.querySelector('#compose-recipients').value;
-      const subject = document.querySelector('#compose-subject').value;
-      const body = document.querySelector('#compose-body').value;
-    
-      // Prevent multiple submissions
-      if (recipients && subject && body){
-        // Send email to API
-        fetch('/emails', {
-          method: 'POST',
-          body: JSON.stringify({
-              recipients: recipients,
-              subject: subject,
-              body: body
-          })
-        })
-        .then(response => response.json())
-        .then(result => {
-            // Print result
-            console.log(result);
-        })
-        .then(() => {
-          load_mailbox('sent');
-        });
-      }
+    // Set variables if not set
+    if (!recipients) {
+      recipients = document.querySelector('#compose-recipients').value;
+    }
+    if (!subject) {
+      subject = document.querySelector('#compose-subject').value;
+    }
+    if (!email_body){
+      email_body = document.querySelector('#compose-body').value;
+    } else {
+      email_body = `${document.querySelector('#compose-body').value} <br> ${email_body}`;
+    }
 
-      form.reset();
+    // Prevent multiple submissions
+    if (recipients && subject && email_body){
+      // Send email to API
+      fetch('/emails', {
+        method: 'POST',
+        body: JSON.stringify({
+            recipients: recipients,
+            subject: subject,
+            body: email_body
+        })
+      })
+      .then(response => response.json())
+      .then(result => {
+          // Print result
+          console.log(result);
+      })
+      .then(() => {
+        load_mailbox('sent');
+      });
+    }
+
+    // Clear out composition fields
+    document.querySelector('#compose-recipients').value = '';
+    document.querySelector('#compose-subject').value = '';
+    document.querySelector('#compose-body').value = '';
+    document.querySelector('#compose-recipients').placeholder = 'Recipients';
+    document.querySelector('#compose-recipients').disabled = false;
+    document.querySelector('#compose-subject').placeholder = 'Subject';
+    document.querySelector('#compose-subject').disabled = false;
+
+    form.reset();
+
   }, false);
-
-  // Clear out composition fields
-  document.querySelector('#compose-recipients').value = '';
-  document.querySelector('#compose-subject').value = '';
-  document.querySelector('#compose-body').value = '';
 }
 
 function load_mailbox(mailbox) {
@@ -150,16 +172,16 @@ function load_email(email_id, mailbox) {
 
       // From, to, subject, and time
       const from = document.createElement('p');
-      from.innerHTML = "".concat("<b>", "From:", "</b> ",email.sender);
+      from.innerHTML = "".concat("<b> From: </b> ",email.sender);
       
       const to = document.createElement('p');
-      to.innerHTML = "".concat("<b>", "To:", "</b> ", email.recipients.join());
+      to.innerHTML = "".concat("<b> To: </b> ", email.recipients.join());
 
       const subject = document.createElement('p');
-      subject.innerHTML = "".concat("<b>", "Subject:", "</b> ", email.subject);
+      subject.innerHTML = "".concat("<b> Subject: </b> ", email.subject);
 
       const time = document.createElement('p');
-      time.innerHTML = "".concat("<b>", "Timestamp:", "</b> ", email.timestamp);
+      time.innerHTML = "".concat("<b> Timestamp: </b> ", email.timestamp);
 
       // Reply button
       const reply = document.createElement('button');
@@ -169,7 +191,7 @@ function load_email(email_id, mailbox) {
 
       // Archive toggle
       let archive = ''
-      if (mailbox === 'inbox'){
+      if (mailbox !== 'sent'){
         archive = document.createElement('button');
         archive.innerText = "Unarchive";
         if (email.archived == false){
@@ -230,4 +252,21 @@ function toggle_archive(email_url) {
       load_mailbox('archive');
     });
   });
+}
+
+function reply_to(email, mailbox) {
+  // Clean subject line
+  subject = email.subject;
+  if (subject.slice(0, 4) !== "Re: "){
+    subject = "".concat("Re: ", subject);
+  }
+  // Format body
+  body = `<br> On ${email.timestamp} ${email.sender} wrote: <br> ${email.body}`;
+
+  // Check if replying to a 'sent' email or non-'sent' email
+  if (mailbox === 'sent') {
+    compose_email(recipients=email.recipients, subject=subject, email_body=body);
+  } else {
+    compose_email(recipients=email.sender, subject=subject, email_body=body);
+  }
 }
