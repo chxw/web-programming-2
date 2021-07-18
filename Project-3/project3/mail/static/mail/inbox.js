@@ -10,14 +10,50 @@ document.addEventListener('DOMContentLoaded', function() {
   load_mailbox('inbox');
 });
 
+function email_form(event, recipients, subject, body) {
+  
+  event.preventDefault();
+
+  // Set variables if not set
+  if (!recipients) {
+    recipients = document.querySelector('#compose-recipients').value;
+  }
+  if (!subject) {
+    subject = document.querySelector('#compose-subject').value;
+  }
+  if (!body){
+    body = document.querySelector('#compose-body').value;
+  } else {
+    body = "".concat(body, document.querySelector('#compose-body').value);
+  }
+
+  // Send API a POST request of email form
+  fetch('/emails', {
+    method: 'POST',
+    body: JSON.stringify({
+        recipients: recipients,
+        subject: subject,
+        body: body
+    })
+  })
+  .then(response => {
+    console.log(response.json());
+  })
+  // After submission, load SENT mailbox
+  .then(() => {
+      load_mailbox('sent');
+      return true;
+  });
+
+  return false;
+}
+
 function compose_email(recipients, subject, body) {
 
   // Show COMPOSE view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
   document.querySelector('#single-email-view').style.display = 'none';
-
-  let form = document.getElementById('compose-form');
 
   // Disable recipients and subject inputs if this is a REPLY email
   if (recipients) {
@@ -28,45 +64,17 @@ function compose_email(recipients, subject, body) {
     document.querySelector('#compose-subject').placeholder = subject;
     document.querySelector('#compose-subject').disabled = true;
   }
-      
-  form.addEventListener('submit', (event) => {
-    // Prevent default form behavior
-    event.preventDefault();
 
-    // Set variables if not set
-    if (!recipients) {
-      recipients = document.querySelector('#compose-recipients').value;
-    }
-    if (!subject) {
-      subject = document.querySelector('#compose-subject').value;
-    }
-    if (!body){
-      body = document.querySelector('#compose-body').value;
-    } else {
-      body = "".concat(body, document.querySelector('#compose-body').value);
-    }
+  let form = document.getElementById('compose-form');
+  form.addEventListener('submit', (event) => email_form(event, recipients, subject, body), false)
 
-    // Send API a POST request of email form
-    fetch('/emails', {
-      method: 'POST',
-      body: JSON.stringify({
-          recipients: recipients,
-          subject: subject,
-          body: body
-      })
-    })
-    .then(response => response.json())
-    // After submission, load SENT mailbox
-    .then(() => {
-        form.removeEventListener('submit', event);
-        load_mailbox('sent');
-    });
-  });
+  // Set form and send email
+  email_form(recipients, subject, body);
 
   // Clear out composition fields
-  form.querySelector('#compose-recipients').value = '';
-  form.querySelector('#compose-subject').value = '';
-  form.querySelector('#compose-body').value = '';
+  document.querySelector('#compose-recipients').value = '';
+  document.querySelector('#compose-subject').value = '';
+  document.querySelector('#compose-body').value = '';
 }
 
 function load_mailbox(mailbox) {
