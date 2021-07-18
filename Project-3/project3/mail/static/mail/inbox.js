@@ -21,26 +21,35 @@ function compose_email() {
 
   form.addEventListener('submit', (event) => {
       // Prevent form submission
-      event.preventDefault;
+      event.preventDefault();
 
       // Set variables
       const recipients = document.querySelector('#compose-recipients').value;
       const subject = document.querySelector('#compose-subject').value;
       const body = document.querySelector('#compose-body').value;
     
-      fetch('/emails', {
-        method: 'POST',
-        body: JSON.stringify({
-            recipients: recipients,
-            subject: subject,
-            body: body
+      // Prevent multiple submissions
+      if (recipients && subject && body){
+        // Send email to API
+        fetch('/emails', {
+          method: 'POST',
+          body: JSON.stringify({
+              recipients: recipients,
+              subject: subject,
+              body: body
+          })
         })
-      })
-      .then(response => response.json())
-      .then(result => {
-          // Print result
-          console.log(result);
-      });
+        .then(response => response.json())
+        .then(result => {
+            // Print result
+            console.log(result);
+        })
+        .then(() => {
+          load_mailbox('sent');
+        });
+      }
+
+      form.reset();
   }, false);
 
   // Clear out composition fields
@@ -159,15 +168,17 @@ function load_email(email_id, mailbox) {
       reply.addEventListener('click', () => reply_to(email, mailbox));
 
       // Archive toggle
-      const archive = document.createElement('button');
-      if (email.archived == false){
-        archive.innerText = "Archive";
-      } else {
+      let archive = ''
+      if (mailbox === 'inbox'){
+        archive = document.createElement('button');
         archive.innerText = "Unarchive";
+        if (email.archived == false){
+          archive.innerText = "Archive";
+        }
+        archive.id = "archive";
+        archive.className = "btn btn-sm btn-outline-primary";
+        archive.addEventListener('click', () => toggle_archive(email_url));
       }
-      archive.id = "archive";
-      archive.className = "btn btn-sm btn-outline-primary";
-      archive.addEventListener('click', () => toggle_archive(email_url));
       
       // Body
       const body = document.createElement('p');
@@ -180,7 +191,7 @@ function load_email(email_id, mailbox) {
         page.append(br);
       }
 
-      // Set email 'read' attribute to true
+      // Mark email as read
       read_email(email_url);
   });
 
@@ -189,6 +200,7 @@ function load_email(email_id, mailbox) {
 }
 
 function read_email(email_url) {
+  // Set 'read' attribute to true on given email_url
   fetch(email_url, {
     method: 'PUT',
     body: JSON.stringify({
@@ -202,11 +214,9 @@ function toggle_archive(email_url) {
   .then(response => response.json())
   .then(email => {
     // Should we archive or unarchive?
-    let set_to
+    let set_to = false
     if (email.archived == false) {
       set_to = true;
-    } else {
-      set_to = false;
     }
 
     // Update attribute and load archive mailbox
@@ -217,7 +227,7 @@ function toggle_archive(email_url) {
       })
     })
     .then(() => {
-      load_mailbox('archive')
+      load_mailbox('archive');
     });
   });
 }
