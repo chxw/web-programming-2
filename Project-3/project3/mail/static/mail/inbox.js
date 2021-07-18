@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelector('#inbox').addEventListener('click', () => loadMailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => loadMailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => loadMailbox('archive'));
-  document.querySelector('#compose').addEventListener('click', () => composeEmail(recipients = null, subject = null, email_body = null));
+  document.querySelector('#compose').addEventListener('click', () => composeEmail(recipients = null, subject = null, email_body = null, reply=false));
 
   // By default, load the inbox
   loadMailbox('inbox');
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
  * @param {string} subject    Subject line of email. 
  * @param {string} email_body Body of email. 
  */
-function composeEmail(recipients, subject, email_body) {
+function composeEmail(recipients, subject, email_body, reply) {
 
   // Show COMPOSE view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
@@ -36,9 +36,6 @@ function composeEmail(recipients, subject, email_body) {
 
   let form = document.getElementById('compose-form');
   form.addEventListener('submit', (event) => {
-    // Prevent form submission
-    event.preventDefault();
-
     // Set variables if not set
     if (!recipients) {
       recipients = document.querySelector('#compose-recipients').value;
@@ -51,6 +48,8 @@ function composeEmail(recipients, subject, email_body) {
     } else {
       email_body = `${document.querySelector('#compose-body').value} <br> ${email_body}`;
     }
+
+    console.log('email_body', email_body);
 
     // Prevent multiple submissions
     if (recipients && subject && email_body) {
@@ -84,6 +83,8 @@ function composeEmail(recipients, subject, email_body) {
 
     form.reset();
 
+    // Prevent form submission
+    event.preventDefault();
   }, false);
 }
 
@@ -279,14 +280,18 @@ function toggleArchive(email_url) {
  * @param {string} mailbox  Expecting one of the following: 'inbox', 'sent', or 'archive'.
  */
 function replyTo(email, mailbox) {
+  console.log('email.id', email.id);
   // Clean subject line
   subject = email.subject;
   if (subject.slice(0, 4) !== "Re: ") {
     subject = "".concat("Re: ", subject);
   }
   // Format body
-  body = `<br> On ${email.timestamp} ${email.sender} wrote: <br> ${email.body}`;
+  body = `On ${email.timestamp} ${email.sender} wrote: <br> ${email.body}`;
 
+  console.log('subject', subject);
+  console.log('body', body);
+  
   // Check if replying to a 'sent' email or non-'sent' email
   if (mailbox === 'sent') {
     composeEmail(recipients = email.recipients, subject = subject, email_body = body);
