@@ -286,6 +286,11 @@ function replyTo(email, mailbox) {
   if (subject.slice(0, 4) !== "Re: ") {
     subject = "".concat("Re: ", subject);
   }
+  console.log('email.timestamp', email.timestamp);
+  console.log('email.sender', email.sender);
+  console.log('email.body', email.body);
+  console.log('email.recipients', email.recipients);
+
   // Format body
   body = `On ${email.timestamp} ${email.sender} wrote: <br> ${email.body}`;
 
