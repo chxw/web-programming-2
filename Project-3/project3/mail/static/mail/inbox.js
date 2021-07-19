@@ -68,20 +68,20 @@ function composeEmail(recipients, subject, email_body, reply) {
           console.log(result);
         })
         .then(() => {
+          // Clear out composition fields
+          document.querySelector('#compose-recipients').value = '';
+          document.querySelector('#compose-subject').value = '';
+          document.querySelector('#compose-body').value = '';
+          document.querySelector('#compose-recipients').placeholder = 'Recipients';
+          document.querySelector('#compose-recipients').disabled = false;
+          document.querySelector('#compose-subject').placeholder = 'Subject';
+          document.querySelector('#compose-subject').disabled = false;
+          
+          form.reset();
+
           loadMailbox('sent');
         });
     }
-
-    // Clear out composition fields
-    document.querySelector('#compose-recipients').value = '';
-    document.querySelector('#compose-subject').value = '';
-    document.querySelector('#compose-body').value = '';
-    document.querySelector('#compose-recipients').placeholder = 'Recipients';
-    document.querySelector('#compose-recipients').disabled = false;
-    document.querySelector('#compose-subject').placeholder = 'Subject';
-    document.querySelector('#compose-subject').disabled = false;
-
-    form.reset();
 
     // Prevent form submission
     event.preventDefault();
@@ -200,7 +200,7 @@ function loadEmail(email_id, mailbox) {
       const reply = document.createElement('button');
       reply.innerText = "Reply";
       reply.className = "btn btn-sm btn-outline-primary";
-      reply.addEventListener('click', () => replyTo(email, mailbox));
+      reply.addEventListener('click', () => replyTo(email));
 
       // Archive toggle
       let archive = '';
@@ -277,30 +277,15 @@ function toggleArchive(email_url) {
 /**
  * 
  * @param {JSON} email      JSON representation of email defined by API. 
- * @param {string} mailbox  Expecting one of the following: 'inbox', 'sent', or 'archive'.
  */
-function replyTo(email, mailbox) {
-  console.log('email.id', email.id);
+function replyTo(email) {
   // Clean subject line
   subject = email.subject;
   if (subject.slice(0, 4) !== "Re: ") {
     subject = "".concat("Re: ", subject);
   }
-  console.log('email.timestamp', email.timestamp);
-  console.log('email.sender', email.sender);
-  console.log('email.body', email.body);
-  console.log('email.recipients', email.recipients);
-
   // Format body
   body = `On ${email.timestamp} ${email.sender} wrote: <br> ${email.body}`;
-
-  console.log('subject', subject);
-  console.log('body', body);
   
-  // Check if replying to a 'sent' email or non-'sent' email
-  if (mailbox === 'sent') {
-    composeEmail(recipients = email.recipients, subject = subject, email_body = body);
-  } else {
-    composeEmail(recipients = email.sender, subject = subject, email_body = body);
-  }
+  composeEmail(recipients = email.sender, subject = subject, email_body = body);
 }
