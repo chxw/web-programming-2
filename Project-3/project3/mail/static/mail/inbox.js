@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelector('#inbox').addEventListener('click', () => loadMailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => loadMailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => loadMailbox('archive'));
-  document.querySelector('#compose').addEventListener('click', () => composeEmail(recipients = null, subject = null, email_body = null, reply=false));
+  document.querySelector('#compose').addEventListener('click', () => composeEmail(recipients = null, subject = null, email_body = null, reply = false));
 
   // By default, load the inbox
   loadMailbox('inbox');
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
  * @param {string} subject    Subject line of email. 
  * @param {string} email_body Body of email. 
  */
-function composeEmail(recipients, subject, email_body, reply) {
+function composeEmail(recipients, subject, email_body) {
 
   // Show COMPOSE view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
@@ -34,6 +34,7 @@ function composeEmail(recipients, subject, email_body, reply) {
     document.querySelector('#compose-subject').disabled = true;
   }
 
+  // Handle New Email form
   let form = document.getElementById('compose-form');
   form.addEventListener('submit', (event) => {
     // Set variables if not set
@@ -49,8 +50,6 @@ function composeEmail(recipients, subject, email_body, reply) {
       email_body = `${document.querySelector('#compose-body').value} <br> ${email_body}`;
     }
 
-    console.log('email_body', email_body);
-
     // Prevent multiple submissions
     if (recipients && subject && email_body) {
       // Send email to API
@@ -63,10 +62,6 @@ function composeEmail(recipients, subject, email_body, reply) {
         })
       })
         .then(response => response.json())
-        .then(result => {
-          // Print result
-          console.log(result);
-        })
         .then(() => {
           // Clear out composition fields
           document.querySelector('#compose-recipients').value = '';
@@ -76,7 +71,7 @@ function composeEmail(recipients, subject, email_body, reply) {
           document.querySelector('#compose-recipients').disabled = false;
           document.querySelector('#compose-subject').placeholder = 'Subject';
           document.querySelector('#compose-subject').disabled = false;
-          
+
           form.reset();
 
           loadMailbox('sent');
@@ -110,52 +105,59 @@ function loadMailbox(mailbox) {
   mailbox_url = "".concat("/emails/", mailbox);
   fetch(mailbox_url)
     .then(response => response.json())
-    .then(emails => {
-      let createCard = (email) => {
-        // Style email card
-        const card = document.createElement('div');
-        card.id = email.id;
-        card.className = 'card shadow';
-        card.style.setProperty('cursor', 'pointer', '');
-        if (email.read == true) {
-          card.style.setProperty('background-color', 'gainsboro', '');
-        }
-        card.addEventListener('click', (event) => loadEmail(email.id, mailbox), false);
+    .then(emails => createEmailCards(emails, mailbox));
+}
 
-        // Fill in email data
-        const cardBody = document.createElement('div');
-        cardBody.className = 'card-body';
+/**
+ * Given a list of emails, create a list of email cards. 
+ * @param {JSON} emails List of emails to create HTML cards for.
+ * @param {*} mailbox   The mailbox these emails belong to.
+ */
+function createEmailCards(emails, mailbox) {
+  let createCard = (email) => {
+    // Style email card
+    const card = document.createElement('div');
+    card.id = email.id;
+    card.className = 'card shadow';
+    card.style.setProperty('cursor', 'pointer', '');
+    if (email.read == true) {
+      card.style.setProperty('background-color', 'gainsboro', '');
+    }
+    card.addEventListener('click', (event) => loadEmail(email.id, mailbox), false);
 
-        const sender = document.createElement('h5');
-        sender.innerText = email.sender;
+    // Fill in email data
+    const cardBody = document.createElement('div');
+    cardBody.className = 'card-body';
 
-        const subject = document.createElement('h5');
-        subject.innerText = email.subject;
+    const sender = document.createElement('h5');
+    sender.innerText = email.sender;
 
-        const timestamp = document.createElement('p');
-        timestamp.className = 'float-right';
-        timestamp.innerText = email.timestamp;
+    const subject = document.createElement('h5');
+    subject.innerText = email.subject;
 
-        // Build card with created elements
-        cardBody.appendChild(sender);
-        cardBody.appendChild(subject);
-        cardBody.appendChild(timestamp);
-        card.appendChild(cardBody);
+    const timestamp = document.createElement('p');
+    timestamp.className = 'float-right';
+    timestamp.innerText = email.timestamp;
 
-        return card;
-      };
+    // Build card with created elements
+    cardBody.appendChild(sender);
+    cardBody.appendChild(subject);
+    cardBody.appendChild(timestamp);
+    card.appendChild(cardBody);
 
-      // Iterate through emails, create card, and append to cardContainer div
-      let initListOfEmails = () => {
-        let cardContainer = document.getElementById('emails-view');
-        emails.forEach((email) => {
-          card = createCard(email);
-          cardContainer.appendChild(card);
-        });
-      };
+    return card;
+  };
 
-      initListOfEmails();
+  // Iterate through emails, create card, and append to cardContainer div
+  let initListOfEmails = () => {
+    let cardContainer = document.getElementById('emails-view');
+    emails.forEach((email) => {
+      card = createCard(email);
+      cardContainer.appendChild(card);
     });
+  };
+
+  initListOfEmails();
 }
 
 /**
@@ -176,55 +178,8 @@ function loadEmail(email_id, mailbox) {
   fetch(email_url)
     .then(response => response.json())
     .then(email => {
-      // Create container for HTML elements
-      let page = document.getElementById('single-email-view');
-
-      // Utility elements
-      const br = document.createElement('br'); // Line break
-      const divider = document.createElement('hr'); // Horizontal line
-
-      // From, to, subject, and time
-      const from = document.createElement('p');
-      from.innerHTML = "".concat("<b> From: </b> ", email.sender);
-
-      const to = document.createElement('p');
-      to.innerHTML = "".concat("<b> To: </b> ", email.recipients.join());
-
-      const subject = document.createElement('p');
-      subject.innerHTML = "".concat("<b> Subject: </b> ", email.subject);
-
-      const time = document.createElement('p');
-      time.innerHTML = "".concat("<b> Timestamp: </b> ", email.timestamp);
-
-      // Reply button
-      const reply = document.createElement('button');
-      reply.innerText = "Reply";
-      reply.className = "btn btn-sm btn-outline-primary";
-      reply.addEventListener('click', () => replyTo(email));
-
-      // Archive toggle
-      let archive = '';
-      if (mailbox !== 'sent') {
-        archive = document.createElement('button');
-        archive.innerText = "Unarchive";
-        if (email.archived == false) {
-          archive.innerText = "Archive";
-        }
-        archive.id = "archive";
-        archive.className = "btn btn-sm btn-outline-primary";
-        archive.addEventListener('click', () => toggleArchive(email_url));
-      }
-
-      // Body
-      const body = document.createElement('p');
-      body.innerHTML = email.body;
-
-      // Build view email page structure
-      items = [from, to, subject, time, reply, archive, divider, body];
-      for (let i = 0; i < items.length; i++) {
-        page.append(items[i]);
-        page.append(br);
-      }
+      // Create Email page
+      createEmailPage(email, email_url, mailbox);
 
       // Mark email as read
       readEmail(email_url);
@@ -232,6 +187,64 @@ function loadEmail(email_id, mailbox) {
 
   // Clear page for future loads
   document.querySelector('#single-email-view').innerHTML = '';
+}
+
+/**
+ * Create HTML layout for individual email.
+ * @param {JSON} email        JSON representation of email defined by API.   
+ * @param {string} email_url  Expecting '/emails/email_id' that specifies which email to refer to.
+ * @param {string} mailbox    The mailbox that this email belongs to. 
+ */
+function createEmailPage(email, email_url, mailbox) {
+  // Create container for HTML elements
+  let page = document.getElementById('single-email-view');
+
+  // Utility elements
+  const br = document.createElement('br'); // Line break
+  const divider = document.createElement('hr'); // Horizontal line
+
+  // From, to, subject, and time
+  const from = document.createElement('p');
+  from.innerHTML = "".concat("<b> From: </b> ", email.sender);
+
+  const to = document.createElement('p');
+  to.innerHTML = "".concat("<b> To: </b> ", email.recipients.join());
+
+  const subject = document.createElement('p');
+  subject.innerHTML = "".concat("<b> Subject: </b> ", email.subject);
+
+  const time = document.createElement('p');
+  time.innerHTML = "".concat("<b> Timestamp: </b> ", email.timestamp);
+
+  // Reply button
+  const reply = document.createElement('button');
+  reply.innerText = "Reply";
+  reply.className = "btn btn-sm btn-outline-primary";
+  reply.addEventListener('click', () => replyTo(email));
+
+  // Archive toggle
+  let archive = '';
+  if (mailbox !== 'sent') {
+    archive = document.createElement('button');
+    archive.innerText = "Unarchive";
+    if (email.archived == false) {
+      archive.innerText = "Archive";
+    }
+    archive.id = "archive";
+    archive.className = "btn btn-sm btn-outline-primary";
+    archive.addEventListener('click', () => toggleArchive(email_url));
+  }
+
+  // Body
+  const body = document.createElement('p');
+  body.innerHTML = email.body;
+
+  // Build view email page structure
+  items = [from, to, subject, time, reply, archive, divider, body];
+  for (let i = 0; i < items.length; i++) {
+    page.append(items[i]);
+    page.append(br);
+  }
 }
 
 /**
@@ -255,7 +268,7 @@ function toggleArchive(email_url) {
   fetch(email_url)
     .then(response => response.json())
     .then(email => {
-      // Should we archive or unarchive?
+      // Archive or unarchive?
       let set_to = false;
       if (email.archived == false) {
         set_to = true;
@@ -286,6 +299,6 @@ function replyTo(email) {
   }
   // Format body
   body = `On ${email.timestamp} ${email.sender} wrote: <br> ${email.body}`;
-  
+
   composeEmail(recipients = email.sender, subject = subject, email_body = body);
 }

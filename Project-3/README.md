@@ -11,6 +11,67 @@ The Django project is named `project3`. Within this project, there is a single a
 
 This project was an exercise in writing JavaScript and making API calls.
 
+## Index of function documentation
+Located in `project3/mail/static/mail/inbox.js`. 
+```javascript
+/**
+ * Display New email page. Send user-inputed values from form to API as an email. 
+ * Sending POST to /emails endpoint.
+ * @param {string} recipients A valid email address stored within the API. 
+ * @param {string} subject    Subject line of email. 
+ * @param {string} email_body Body of email. 
+ */
+function composeEmail(recipients, subject, email_body)
+
+/**
+ * Display list of emails in different mailboxes. 
+ * Sending GET to /emails/[mailbox] endpoint.
+ * @param {string} mailbox Expecting one of the following: 'inbox', 'sent', or 'archive'. 
+ */
+function loadMailbox(mailbox)
+
+/**
+ * Given a list of emails, create a list of email cards. 
+ * @param {JSON} emails List of emails to create HTML cards for.
+ * @param {*} mailbox   The mailbox these emails belong to.
+ */
+function createEmailCards(emails, mailbox)
+
+/**
+ * Display single email based on email_id. 
+ * Sending GET to /emails/[email_id].
+ * @param {string} email_id ID of individual email used in API request.
+ * @param {string} mailbox  Expecting one of the following: 'inbox', 'sent', or 'archive'.
+ */
+function loadEmail(email_id, mailbox)
+
+/**
+ * Create HTML layout for individual email.
+ * @param {JSON} email        JSON representation of email defined by API.   
+ * @param {string} email_url  Expecting '/emails/email_id' that specifies which email to refer to.
+ * @param {string} mailbox    The mailbox that this email belongs to. 
+ */
+function createEmailPage(email, email_url, mailbox)
+
+/**
+ * Set 'read' attribute to true on a given email (identified by email_url).
+ * @param {string} email_url Expecting '/emails/email_id' that specifies which email to refer to.
+ */
+function readEmail(email_url)
+
+/**
+ * Toggle between (1) archiving and (2) unarchiving a given email (identified by email_url).
+ * @param {string} email_url Expecting '/emails/email_id' that specifies which email to refer to.
+ */
+function toggleArchive(email_url)
+
+/**
+ * 
+ * @param {JSON} email      JSON representation of email defined by API. 
+ */
+function replyTo(email)
+```
+
 # Files:
 ```
 .
@@ -25,8 +86,8 @@ This project was an exercise in writing JavaScript and making API calls.
 │   ├── models.py
 │   ├── static
 │   │   └── mail
-│   │       ├── inbox.js
-│   │       └── styles.css
+│   │       ├── inbox.js        This is the main file that was worked on for this project. 
+│   │       └── styles.css      
 │   ├── templates
 │   │   └── mail
 │   │       ├── inbox.html
