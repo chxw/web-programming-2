@@ -1,5 +1,30 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    TODO
+    {% if user.is_authenticated %}
+        <!-- POSTS section -->
+        <!-- Submit post -->
+        <div class="w-auto p-3">
+            <form action="" method="post">
+                {% csrf_token %}
+                {{ post_form.as_p }}
+                <input type="submit" class="btn-primary btn" value="Post" name="Post">
+            </form>
+        </div>
+        <!-- Display posts -->
+        {% for post in posts %}
+        <div class="card mb-3">
+            <div class="col-md-8">
+            <div class="card-body">
+                  <h5 class="card-title">{{ post.author }}</h5>
+                  <p class="card-text"> {{ post.text }} </p>
+                  <p><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-heart-fill" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
+                  </svg> # of Likes</p>
+                  <p class="card-text"><small class="text-muted">Created on: {{ post.created_on }} </small></p>
+                </div>
+              </div>
+        </div>
+        {% endfor %}
+    {% endif %}
 {% endblock %}
