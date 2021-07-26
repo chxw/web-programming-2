@@ -3,7 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-    follows = models.ManyToManyField('Follow', related_name="users")
+    pass
 
 class Post(models.Model):
     author = models.ForeignKey(
@@ -12,12 +12,15 @@ class Post(models.Model):
     created_on = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f'self.author: self.text'
+        return f'{self.author}: {self.text}'
 
 class Follow(models.Model):
     target = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="followers")    
     follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name="targets")
+
+    def __str__(self):
+        return f'target: {self.target}, follower: {self.follower}'
 
 
 class Like(models.Model):

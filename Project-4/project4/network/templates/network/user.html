@@ -3,23 +3,28 @@
 {% block body %}
     <h1>@{{ username }}</h1>
     
-    <!-- Followers -->
+    <!-- (Un)Follow -->
     {% if request.user != username %}
-        <!-- If request.user follows username -->
+        {% if following %}        
         <form action="" method="post">
             {% csrf_token %}
             <button type="submit" class="btn btn-dark" value="Unfollow" name="Follow">
                 Unfollow
             </button>
         </form>
-        <!-- else -->
+        {% else %}
         <form action="" method="post">
             {% csrf_token %}
             <button type="submit" class="btn btn-dark" value="Follow" name="Follow">
                 Follow
             </button>
         </form>
+        {% endif %}
     {% endif %}
+
+    <!-- Following / Followers -->
+    <p>{{ num_followers }} Followers</p>
+    <p>{{ num_following }} Following</p>
 
     <!-- Display posts -->
     {% for post in posts %}
