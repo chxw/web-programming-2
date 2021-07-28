@@ -38,37 +38,35 @@ def handle_post(request):
 
     if request.method == "PUT":
         data = json.loads(request.body)
+        post_id = data['id']
 
         if 'text' in data:
-            data = json.loads(request.body)
-            post_id = data['id']
             post_text = data['text']
             post = Post.objects.get(pk=post_id)
             post.text = post_text
             post.save()
         else:
+            post = Post.objects.get(pk=post_id)
             if 'like' in data:
-                data = json.loads(request.body)
-                post_id = data['id']
-                post = Post.objects.get(pk=post_id)
                 Like.objects.get_or_create(user=request.user, post=post)
             else:
-                data = json.loads(request.body)
-                post_id = data['id']
-                post = Post.objects.get(pk=post_id)
-                to_unlike = Like.objects.get(user=request.user, post=post)
-                to_unlike.delete()
+                Like.objects.filter(user=request.user, post=post).delete()
 
 
 @csrf_exempt
 def index(request):
     posts = Post.objects.order_by('-created_on')
 
+    tupls = []
+    for post in posts:
+        tupl = (post, post.does_user_like(user=request.user))
+        tupls.append(tupl)
+
     handle_post(request)
 
-    return render(request, "network/index.html", {
+    return render(request, "network/index.html", { 
         'post_form': PostForm(),
-        'page': get_page(request, posts)
+        'page': get_page(request, tupls)
     })
 
 def posts(request, id):

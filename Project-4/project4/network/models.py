@@ -21,6 +21,9 @@ class Post(models.Model):
             "text": self.text,
             "created_on": self.created_on
         }
+    
+    def does_user_like(self, user):
+        return Like.objects.filter(post=self, user=user).exists()
 
 class Follow(models.Model):
     target = models.ForeignKey(
@@ -35,3 +38,6 @@ class Like(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="likes")
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes")
+
+    class Meta:
+        unique_together = ["user", "post"]
