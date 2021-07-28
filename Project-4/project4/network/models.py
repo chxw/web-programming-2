@@ -5,6 +5,11 @@ from django.db import models
 class User(AbstractUser):
     pass
 
+class Like(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="likes")
+    post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name="likes")
+
 class Post(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="posts")
@@ -22,6 +27,12 @@ class Post(models.Model):
             "created_on": self.created_on
         }
 
+    def does_user_like(self, user):
+        if Like.objects.filter(user=user, post=self).exists():
+            return True
+        return False
+
+
 class Follow(models.Model):
     target = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="followers")    
@@ -29,9 +40,3 @@ class Follow(models.Model):
 
     def __str__(self):
         return f'target: {self.target}, follower: {self.follower}'
-
-
-class Like(models.Model):
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="likes")
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes")

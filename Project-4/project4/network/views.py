@@ -62,7 +62,11 @@ def handle_post(request):
 
 @csrf_exempt
 def index(request):
-    posts = Post.objects.order_by('-created_on')
+    posts = Post.objects.annotate(num_likes=Count('likes')).order_by('-created_on')
+    
+    for post in posts:
+        post.like = post.does_user_like(user=request.user)
+        print('post.like: ', post.like)
 
     handle_post(request)
 

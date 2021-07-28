@@ -21,9 +21,13 @@
                   <textarea class="post-editor" type="text" style="display: none;" data-id="{{ post.id }}"></textarea>
                   <p><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-heart-fill" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
-                  </svg> {{ post.likes }} of Likes</p>
+                  </svg> {{ post.num_likes }} Likes</p>
                   <button type="submit" name="edit" class="btn btn-dark edit">Edit</button>
-                  <button type="submit" name="like" class="btn btn-dark like" data-id="{{ post.id }}">Like</button>
+                  {% if post.like %}
+                    <button type="submit" name="like" class="btn btn-dark like" data-id="{{ post.id }}">Unlike</button>
+                  {% else %}
+                    <button type="submit" name="like" class="btn btn-dark like" data-id="{{ post.id }}">Like</button>
+                  {% endif %}
                   <p class="card-text"><small class="text-muted">Created on: {{ post.created_on }} </small></p>
                 </div>
             </div>
