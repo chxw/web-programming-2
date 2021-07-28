@@ -7,22 +7,33 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function clickPost() {
-    // Listen for post click
     let buttons = document.getElementsByName('Post');
     
     for (let i = 0; i < buttons.length; i++) {
+        // Prevent multiple button presses
         buttons[i].onclick="this.disabled=true,this.form.submit()";
     }
 }
 
 function clickLike() {
-    // Listen for like click
     let buttons = document.querySelectorAll('.like');
 
     for (let i = 0; i < buttons.length; i++) {
+        // Listen for clicking .like button
         buttons[i].onclick = likeOrUnlike;
     }
 }
+
+
+function clickEditOrSave() {
+    let buttons = document.querySelectorAll('.edit');
+
+    for (let i = 0; i < buttons.length; i++) {
+        // Listen for clicking .edit button
+        buttons[i].onclick = editOrSave;
+    }
+}
+
 
 function likeOrUnlike() {
     let siblings = getSiblings(this);
@@ -34,7 +45,7 @@ function likeOrUnlike() {
         like = true;
     }
 
-    // Grab post editor element from card
+    // Grab num_likes element from card
     for (let i = 0; i < siblings.length; i++) {
         if (siblings[i].classList.contains('num-likes')) {
             num_likes_elem = siblings[i];
@@ -66,25 +77,12 @@ function likeOrUnlike() {
     });
 }
 
-function clickEditOrSave() {
-    // Listen for button click
-    let buttons = document.querySelectorAll('.edit');
-
-    for (let i = 0; i < buttons.length; i++) {
-        if (buttons[i].innerHTML == 'Save') {
-            buttons[i].onclick = saveText;
-        }
-        else if (buttons[i].innerHTML == 'Edit') {
-            buttons[i].onclick = editText;
-        }
-    }
-}
-
-function editText() {
+function editOrSave() {
     let siblings = getSiblings(this);
     let post_editor;
+    let post_content;
 
-    // Grab post editor element from card
+    // Grab relevant elements from card
     for (let i = 0; i < siblings.length; i++) {
         if (siblings[i].classList.contains('post-editor')) {
             post_editor = siblings[i];
@@ -94,62 +92,50 @@ function editText() {
         }
     }
 
-    // Show textarea, hide content, and switch 'Edit' -> 'Save'
-    post_content.style.display = 'none';
-    post_editor.style.display = 'block';
-    post_editor.value = post_content.innerHTML;
-    this.innerHTML = 'Save';
+    if (this.innerHTML == "Edit"){
+        // Show textarea, hide content, and switch 'Edit' -> 'Save'
+        post_content.style.display = 'none';
+        post_editor.style.display = 'block';
+        post_editor.value = post_content.innerHTML;
+        this.innerHTML = 'Save';
 
-    clickEditOrSave();
-}
-
-function saveText() {
-    let siblings = getSiblings(this);
-    let post_content;
-    let post_editor;
-
-    // Grab post text and post editor elements from card
-    for (let i = 0; i < siblings.length; i++) {
-        if (siblings[i].classList.contains('post-content')) {
-            post_content = siblings[i];
-        }
-        if (siblings[i].classList.contains('post-editor')) {
-            post_editor = siblings[i];
-        }
+        clickEditOrSave();
     }
-
-    fetch('', {
-        method: 'PUT',
-        body: JSON.stringify({
-            text: post_editor.value,
-            id: post_editor.dataset.id
+    else { 
+        // This is a "Save" button
+        fetch('', {
+            method: 'PUT',
+            body: JSON.stringify({
+                text: post_editor.value,
+                id: post_editor.dataset.id
+            })
         })
-    })
-        .then(() => {
-            fetch('api/posts/' + String(post_editor.dataset.id))
-                .then(response => response.json())
-                .then(data => {
-                    post_content.innerHTML = data.text;
-                });
-        })
-        .then(() => {
-            post_editor.style.display = 'none';
-            post_content.style.display = 'block';
-            this.innerHTML = 'Edit';
-            clickEditOrSave();
-        });
+            .then(() => {
+                fetch('api/posts/' + String(post_editor.dataset.id))
+                    .then(response => response.json())
+                    .then(data => {
+                        post_content.innerHTML = data.text;
+                    });
+            })
+            .then(() => {
+                post_editor.style.display = 'none';
+                post_content.style.display = 'block';
+                this.innerHTML = 'Edit';
+                clickEditOrSave();
+            });
+    }
 }
 
 function getSiblings(e) {
-    // for collecting siblings
     let siblings = [];
-    // if no parent, return no sibling
+
+    // No siblings
     if (!e.parentNode) {
         return siblings;
     }
-    // first child of the parent node
+
+    // Linked list traversal to get siblings
     let sibling = e.parentNode.firstChild;
-    // collecting siblings
     while (sibling) {
         if (sibling.nodeType === 1 && sibling !== e) {
             siblings.push(sibling);
