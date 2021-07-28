@@ -1,15 +1,18 @@
+import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Count
 
 
 from .models import User, Post, Follow, Like
 from .forms import PostForm
+
 
 def get_page(request, posts):
     page_number = request.GET.get('page', 1) # 1 is default
@@ -17,8 +20,6 @@ def get_page(request, posts):
     page = paginator.page(page_number)
     return page
 
-@csrf_exempt
-@login_required
 def handle_post(request):
     # Post on listing
     if request.POST.get("Post"):
@@ -36,17 +37,43 @@ def handle_post(request):
             return redirect(reverse("index"))
 
     if request.method == "PUT":
-        # Handle edit 
-        pass
+        data = json.loads(request.body)
+
+        if 'text' in data:
+            data = json.loads(request.body)
+            post_id = data['id']
+            post_text = data['text']
+            post = Post.objects.get(pk=post_id)
+            post.text = post_text
+            post.save()
+        else:
+            if 'like' in data:
+                data = json.loads(request.body)
+                post_id = data['id']
+                post = Post.objects.get(pk=post_id)
+                Like.objects.get_or_create(user=request.user, post=post)
+            else:
+                data = json.loads(request.body)
+                post_id = data['id']
+                post = Post.objects.get(pk=post_id)
+                to_unlike = Like.objects.get(user=request.user, post=post)
+                to_unlike.delete()
+
 
 @csrf_exempt
 def index(request):
+    posts = Post.objects.order_by('-created_on')
+
     handle_post(request)
 
     return render(request, "network/index.html", {
         'post_form': PostForm(),
-        'page': get_page(request, Post.objects.order_by('-created_on'))
+        'page': get_page(request, posts)
     })
+
+def posts(request, id):
+    post = Post.objects.get(pk=id)
+    return JsonResponse(post.serialize(), safe=False)
 
 def following(request):
     handle_post(request)

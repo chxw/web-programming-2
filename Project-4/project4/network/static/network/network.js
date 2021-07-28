@@ -1,62 +1,96 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-    clickEdit();
+    clickEditOrSave();
+    clickLike();
 
-  });
+});
 
-function clickEdit() {
-    // Listen for "Edit" click
-    let edit_buttons = document.querySelectorAll('.edit');
+function clickLike() {
+    // Listen for like click
+    let buttons = document.querySelectorAll('.like');
 
-    for (let i = 0; i < edit_buttons.length; i++) {
-        edit_buttons[i].addEventListener('click', Edit, false);
+    for (let i = 0; i < buttons.length; i++) {
+        if (buttons[i].innerHTML == 'Like') {
+            buttons[i].onclick = like;
+        }
+        else if (buttons[i].innerHTML == 'Unlike') {
+            buttons[i].onclick = unlike;
+        }
     }
 }
 
-function clickSave() {
-    // Listen for "Save" click
+function like() {
+    fetch('', {
+        method: 'PUT',
+        body: JSON.stringify({
+            like: true,
+            id: this.dataset.id
+        })
+    })
+        .then(() => {
+            this.innerHTML = 'Unlike';
+            clickLike();
+        });
+}
+
+function unlike() {
+
+    fetch('', {
+        method: 'PUT',
+        body: JSON.stringify({
+            like: false,
+            id: this.dataset.id
+        })
+    })
+        .then(() => {
+            this.innerHTML = 'Like';
+            clickLike();
+        });
+}
+
+function clickEditOrSave() {
+    // Listen for button click
     let buttons = document.querySelectorAll('.edit');
 
     for (let i = 0; i < buttons.length; i++) {
-        if (buttons[i].innerHTML == 'Save'){
-            buttons[i].addEventListener('click', Save, false);
+        if (buttons[i].innerHTML == 'Save') {
+            buttons[i].onclick = saveText;
+        }
+        else if (buttons[i].innerHTML == 'Edit') {
+            buttons[i].onclick = editText;
         }
     }
 }
 
-function Edit() {
+function editText() {
     let siblings = getSiblings(this);
-    let post_text;
     let post_editor;
 
-    // Grab post text and post editor elements from card
-    for (let i = 0; i < siblings.length; i++){
-        if (siblings[i].classList.contains('post-content')){
-            post_text = siblings[i];
-        }
-        if (siblings[i].classList.contains('post-editor')){
+    // Grab post editor element from card
+    for (let i = 0; i < siblings.length; i++) {
+        if (siblings[i].classList.contains('post-editor')) {
             post_editor = siblings[i];
         }
     }
 
-    // Show textarea and switch 'Edit' -> 'Save
+    // Show textarea and switch 'Edit' -> 'Save'
     post_editor.style.display = 'block';
     this.innerHTML = 'Save';
 
-    clickSave();
+    clickEditOrSave();
 }
 
-function Save() {
+function saveText() {
     let siblings = getSiblings(this);
     let post_text;
     let post_editor;
 
     // Grab post text and post editor elements from card
-    for (let i = 0; i < siblings.length; i++){
-        if (siblings[i].classList.contains('post-content')){
+    for (let i = 0; i < siblings.length; i++) {
+        if (siblings[i].classList.contains('post-content')) {
             post_text = siblings[i];
         }
-        if (siblings[i].classList.contains('post-editor')){
+        if (siblings[i].classList.contains('post-editor')) {
             post_editor = siblings[i];
         }
     }
@@ -64,25 +98,33 @@ function Save() {
     fetch('', {
         method: 'PUT',
         body: JSON.stringify({
-          text: post_editor.value
+            text: post_editor.value,
+            id: post_editor.dataset.id
         })
-      })
-      .then(() => {
-        post_editor.style.display = 'none';
-        this.innerHTML = 'Edit';
-      });
-
+    })
+        .then(() => {
+            fetch('api/posts/' + String(post_editor.dataset.id))
+                .then(response => response.json())
+                .then(data => {
+                    post_text.innerHTML = data.text;
+                });
+        })
+        .then(() => {
+            post_editor.style.display = 'none';
+            this.innerHTML = 'Edit';
+            clickEditOrSave();
+        });
 }
 
 function getSiblings(e) {
     // for collecting siblings
-    let siblings = []; 
+    let siblings = [];
     // if no parent, return no sibling
-    if(!e.parentNode) {
+    if (!e.parentNode) {
         return siblings;
     }
     // first child of the parent node
-    let sibling  = e.parentNode.firstChild;
+    let sibling = e.parentNode.firstChild;
     // collecting siblings
     while (sibling) {
         if (sibling.nodeType === 1 && sibling !== e) {

@@ -14,6 +14,14 @@ class Post(models.Model):
     def __str__(self):
         return f'{self.author}: {self.text}'
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "author": self.author.username,
+            "text": self.text,
+            "created_on": self.created_on
+        }
+
 class Follow(models.Model):
     target = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="followers")    
@@ -26,4 +34,4 @@ class Follow(models.Model):
 class Like(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="likes")
-    post = models.ManyToManyField(Post, related_name="likes")
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes")
