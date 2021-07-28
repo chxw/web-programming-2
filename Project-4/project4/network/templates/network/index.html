@@ -2,27 +2,53 @@
 
 {% block body %}
     {% if user.is_authenticated %}
-        <!-- POSTS section -->
-        <!-- Submit post -->
-        <div class="w-auto p-3">
-            <form action="" method="post">
-                {% csrf_token %}
-                {{ post_form.as_p }}
-                <input type="submit" class="btn-primary btn" value="Post" name="Post">
-            </form>
-        </div>
+        <!-- IF USER PROFILE -->
+        {% if username %}
+          <h1>@{{ username }}</h1>
+          <!-- (Un)Follow -->
+          {% if request.user.username != username %}
+              {% if following %}        
+              <form action="" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-dark" value="Unfollow" name="Follow">
+                      Unfollow
+                  </button>
+              </form>
+              {% else %}
+              <form action="" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-dark" value="Follow" name="Follow">
+                      Follow
+                  </button>
+              </form>
+              {% endif %}
+          {% endif %}
+          <!-- Following / Followers -->
+          <p>{{ num_followers }} Followers</p>
+          <p>{{ num_following }} Following</p>
+        {% else %}
+          <!-- Submit post -->
+          <div class="w-auto p-3">
+              <h3>New Post</h3>
+              <form action="" method="post">
+                  {% csrf_token %}
+                  {{ post_form.as_p }}
+                  <input type="submit" class="btn-primary btn" value="Post" name="Post">
+              </form>
+          </div>
+        {% endif %}
         <!-- Display posts -->
         {% for post in page %}
         <div class="card mb-3">
             <div class="col-md-8">
             <div class="card-body">
-                  <h5 class="card-title">{{ post.author }}</h5>
+                  <h5 class="card-title"><a href="{% url 'user' post.author %}">@{{ post.author }}</a></h5>
                   <p class="card-text post-content"> {{ post.text }} </p>
                   <textarea class="post-editor" type="text" style="display: none;" data-id="{{ post.id }}"></textarea>
-                  <p><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-heart-fill" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
-                  </svg> {{ post.num_likes }} Likes</p>
-                  <button type="submit" name="edit" class="btn btn-dark edit">Edit</button>
+                  <p class="num-likes">{{ post.num_likes }} Likes</p>
+                  {% if request.user == post.author %}
+                    <button type="submit" name="edit" class="btn btn-dark edit">Edit</button>
+                  {% endif %}
                   {% if post.like %}
                     <button type="submit" name="like" class="btn btn-dark like" data-id="{{ post.id }}">Unlike</button>
                   {% else %}

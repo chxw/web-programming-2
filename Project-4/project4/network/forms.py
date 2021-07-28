@@ -7,5 +7,5 @@ class PostForm(ModelForm):
         model = Post
         fields = ['text']
         widgets = {
-            'text': Textarea(attrs={'placeholder': 'What do you want to say?'})
+            'text': Textarea(attrs={'placeholder': 'What do you want to say?', 'label': ''})
         }
