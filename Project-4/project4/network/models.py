@@ -5,13 +5,16 @@ from django.db import models
 class User(AbstractUser):
     pass
 
+
 class Like(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="likes")
-    post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name="likes")
+    post = models.ForeignKey(
+        'Post', on_delete=models.CASCADE, related_name="likes")
 
     def __str__(self):
         return f'{self.user}: {self.post}'
+
 
 class Post(models.Model):
     author = models.ForeignKey(
@@ -38,8 +41,9 @@ class Post(models.Model):
 
 class Follow(models.Model):
     target = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="followers")    
-    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name="targets")
+        User, on_delete=models.CASCADE, related_name="followers")
+    follower = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="targets")
 
     def __str__(self):
         return f'target: {self.target}, follower: {self.follower}'

@@ -11,8 +11,12 @@ from .models import User, Post, Follow, Like
 from .forms import PostForm
 from .util import get_page, send_post, send_like_edit_post, get_following_posts, get_post_likes, send_follow
 
+
 @csrf_exempt
 def index(request):
+    """
+    Displays "All Posts" and "Following" pages, depending on route requested. 
+    """
     # Initialize variables
     post_form = PostForm()
     posts = []
@@ -32,9 +36,10 @@ def index(request):
 
     if request.path_info == '/':
         # Grab and format ALL posts
-        posts = Post.objects.annotate(num_likes=Count('likes')).order_by('-created_on')
+        posts = Post.objects.annotate(
+            num_likes=Count('likes')).order_by('-created_on')
         posts = get_post_likes(request, posts)
-    elif request.path_info == '/following': 
+    elif request.path_info == '/following':
         # Grab and format FOLLOWING posts
         posts = get_following_posts(request)
         posts = get_post_likes(request, posts)
@@ -44,36 +49,46 @@ def index(request):
         'page': get_page(request, posts)
     })
 
+
 @csrf_exempt
 def user(request, username):
+    """
+    Displays user profile page. 
+    """
     # Grab necessary info
     viewer = User.objects.get(username=request.user)
     viewee = User.objects.get(username=username)
-    following = Follow.objects.filter(target=viewee, follower=viewer).exists() # True or False
-    num_followers = Follow.objects.filter(target=viewee).count() # Number
-    num_following = Follow.objects.filter(follower=viewee).count # Number
+    following = Follow.objects.filter(
+        target=viewee, follower=viewer).exists()  # True or False
+    num_followers = Follow.objects.filter(target=viewee).count()  # Number
+    num_following = Follow.objects.filter(follower=viewee).count  # Number
 
     # User (UN)FOLLOWS user
     if request.POST.get("Follow"):
-        send_follow(request, viewer, viewee)
+        if (send_follow(request, viewer, viewee)):
+            return redirect(request.path_info)
+        return HttpResponse(status=400)
 
     # User LIKES or EDITS a post
     elif request.method == "PUT":
         send_like_edit_post(request)
 
     # Grab and format posts
-    posts = Post.objects.annotate(num_likes=Count('likes')).filter(author=User.objects.get(username=username)).order_by('-created_on')
+    posts = Post.objects.annotate(num_likes=Count('likes')).filter(
+        author=User.objects.get(username=username)).order_by('-created_on')
     posts = get_post_likes(request, posts)
 
     return render(request, "network/index.html", {
         'username': username,
         'page': get_page(request, posts),
-        'following' : following,
+        'following': following,
         'num_followers': num_followers,
         'num_following': num_following
     })
 
-### API endpoints
+# API endpoints
+
+
 def posts(request, id):
     """
     Returns serialized Post object based on post id (id). 
@@ -82,6 +97,7 @@ def posts(request, id):
     """
     post = Post.objects.get(pk=id)
     return JsonResponse(post.serialize(), safe=False)
+
 
 def likes(request, id):
     """
@@ -92,7 +108,9 @@ def likes(request, id):
     num_likes = Like.objects.filter(post=id).count()
     return JsonResponse(num_likes, safe=False)
 
-### Pre-written views
+# Pre-written views
+
+
 def login_view(request):
     if request.method == "POST":
 

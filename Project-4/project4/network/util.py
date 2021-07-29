@@ -68,5 +68,9 @@ def send_follow(request, viewer, viewee):
 
     if value == "Follow":
         Follow.objects.get_or_create(target=viewee, follower=viewer)
+        return True
     elif value == "Unfollow":
         Follow.objects.filter(target=viewee, follower=viewer).delete()
+        return True
+    else:
+        return False
