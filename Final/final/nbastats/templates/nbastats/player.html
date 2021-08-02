@@ -16,11 +16,12 @@
       </ul>
     </div>
     <div class="card-body">
+      <img src="{{ photo_url }}" height="190" width="260" alt="Image of {{ fname }} {{ lname }}">
       <h5 class="card-title">{{ fname }} {{ lname }}</h5>
       <p class="card-text">Height: {{ height_ft }}'{{ height_in }}"</p>
       <p class="card-text">Position: {{ position }}</p>
       <p class="card-text">Team: {{ team }}</p>
-      <div class="table-responsive">
+      <div class="table-responsive sortable">
         <table class="table">
           <thead>
             <tr>

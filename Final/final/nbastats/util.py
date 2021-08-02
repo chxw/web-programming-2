@@ -1,4 +1,5 @@
 import requests
+import datetime
 
 teams_endpoint = "https://www.balldontlie.io/api/v1/teams/"
 
@@ -8,6 +9,20 @@ def get_team_name(id):
     response = requests.request("GET", url)
     data = response.json()
     return(data["full_name"])
+
+def get_player_NBAID(fname, lname):
+    year = datetime.date.today().year
+    url = "https://data.nba.net/data/10s/prod/v1/"+str(year)+"/players.json"
+    
+    response = requests.request("GET", url)
+    data = response.json()
+    players = data["league"]["standard"]
+    NBAid = [player["personId"] for player in players if player["firstName"] == fname and player["lastName"] == lname]
+    return NBAid[0]
+
+def get_player_photo(person_id):
+    url = "https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/"+str(person_id)+".png"
+    return url
 
 class PlayerGameStat:
     def __init__(self):

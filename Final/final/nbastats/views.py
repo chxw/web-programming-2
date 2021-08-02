@@ -14,7 +14,7 @@ import json
 import datetime
 
 from .models import User
-from .util import get_team_name, PlayerGameStat
+from .util import get_player_NBAID, get_player_photo, get_team_name, PlayerGameStat
 
 # Create your views here.
 
@@ -44,6 +44,11 @@ def player(request, playerid):
 
     response = requests.request("GET", url)
     player_info = response.json()
+    fname = player_info['first_name']
+    lname = player_info['last_name']
+    NBA_id = get_player_NBAID(fname=fname, lname=lname)
+    photo_url = get_player_photo(NBA_id)
+    print(photo_url)
 
     # # Full stats
     # url = stats_endpoint+"?"+"player_ids[]="+str(playerid)
@@ -95,17 +100,18 @@ def player(request, playerid):
         player.pf = stat["pf"]
         player_stats.append(player)
 
-    print(len(current_stats))
+    # print(len(current_stats))
 
     return render(request, 'nbastats/player.html', {
-        'fname': player_info['first_name'],
-        'lname': player_info['last_name'],
+        'fname': fname,
+        'lname': lname,
         'height_ft': player_info['height_feet'],
         'height_in': player_info['height_inches'],
         'position': player_info['position'],
         'team': player_info['team']['full_name'],
         # 'full_stats': full_stats,
         'current_stats': player_stats,
+        'photo_url': photo_url
     })
 
 # Login / Logout / Register
