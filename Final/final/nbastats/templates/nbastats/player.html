@@ -1,0 +1,80 @@
+{% extends "nbastats/layout.html" %}
+
+{% block body %}
+<div class="card text-center">
+    <div class="card-header">
+      <ul class="nav nav-tabs card-header-tabs">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="true" href="#">Bio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Full Stats</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Averages</a>
+        </li>
+      </ul>
+    </div>
+    <div class="card-body">
+      <h5 class="card-title">{{ fname }} {{ lname }}</h5>
+      <p class="card-text">Height: {{ height_ft }}'{{ height_in }}"</p>
+      <p class="card-text">Position: {{ position }}</p>
+      <p class="card-text">Team: {{ team }}</p>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Game</th>
+              <th>Min</th>
+              <th>PTS</th>
+              <th>FG%</th>
+              <th>FGA</th>
+              <th>FGM</th>
+              <th>3P%</th>
+              <th>3PA</th>
+              <th>3PM</th>
+              <th>FT%</th>
+              <th>FTA</th>
+              <th>FTM</th>
+              <th>OREB</th>
+              <th>DREB</th>
+              <th>REB</th>
+              <th>AST</th>
+              <th>TOV</th>
+              <th>STL</th>
+              <th>BLK</th>
+              <th>PF</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for stat in current_stats %}
+              <tr>
+                <td>{{ stat.home_team }} vs {{ stat.visitor_team }}</td>
+                <td>{{ stat.min }}</td>
+                <td>{{ stat.pts }}</td>
+                <td>{{ stat.fg_pct }}</td>
+                <td>{{ stat.fga }}</td>
+                <td>{{ stat.fgm }}</td>
+                <td>{{ stat.fg3_pct }}</td>
+                <td>{{ stat.fg3a }}</td>
+                <td>{{ stat.fg3m }}</td>
+                <td>{{ stat.ft_pct}}</td>
+                <td>{{ stat.fta }}</td>
+                <td>{{ stat.ftm }}</td>
+                <td>{{ stat.oreb }}</td>
+                <td>{{ stat.dreb }}</td>
+                <td>{{ stat.reb }}</td>
+                <td>{{ stat.ast }}</td>
+                <td>{{ stat.turnover }}</td>
+                <td>{{ stat.stl }}</td>
+                <td>{{ stat.blk }}</td>
+                <td>{{ stat.pf }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <a href="#" class="btn btn-primary">Go somewhere</a>
+    </div>
+</div>
+{% endblock %}
