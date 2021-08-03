@@ -34,7 +34,6 @@ def index(request):
 
     response = requests.request("GET", url, headers=headers, params=querystring)
 
-    print(response.text)
     return render(request, 'nbastats/index.html')
 
 def player(request, playerid):
@@ -48,7 +47,6 @@ def player(request, playerid):
     lname = player_info['last_name']
     NBA_id = get_player_NBAID(fname=fname, lname=lname)
     photo_url = get_player_photo(NBA_id)
-    print(photo_url)
 
     # # Full stats
     # url = stats_endpoint+"?"+"player_ids[]="+str(playerid)
@@ -100,7 +98,6 @@ def player(request, playerid):
         player.pf = stat["pf"]
         player_stats.append(player)
 
-    # print(len(current_stats))
 
     return render(request, 'nbastats/player.html', {
         'fname': fname,
