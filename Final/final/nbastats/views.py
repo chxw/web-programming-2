@@ -54,14 +54,14 @@ def player(request, playerid):
     NBA_id = get_player_NBAID(fname=fname, lname=lname)
     photo_url = get_player_photo(NBA_id)
 
-    # Get season averages
-    season_averages = get_season_averages(playerid)
-    df = pd.DataFrame.from_dict(season_averages)
-    df.set_index('season', inplace=True, drop=True)
-    df.index.name=None
-    df.drop(columns='player_id', inplace=True)
-    df.rename(columns={'games_played':'GP', 'min':'MIN', 'fgm':'FGM', 'fga':'FGA', 'fg3m':'3PM', 'fg3a':'3PA', 'ftm':'FTM', 'fta':'FTA', 'oreb':'OREB', 'dreb':'DREB', 'reb':'REB', 'ast':'AST', 'stl':'STL', 'blk':'BLK', 'turnover':'TOV', 'pf':'PF', 'pts':'PTS', 'fg_pct':'FG%', 'fg3_pct':'3P%', 'ft_pct':'FT%'},inplace=True)
-    html = df.to_html(classes="table")
+    # # Get season averages
+    # season_averages = get_season_averages(playerid)
+    # df = pd.DataFrame.from_dict(season_averages)
+    # df.set_index('season', inplace=True, drop=True)
+    # df.index.name=None
+    # df.drop(columns='player_id', inplace=True)
+    # df.rename(columns={'games_played':'GP', 'min':'MIN', 'fgm':'FGM', 'fga':'FGA', 'fg3m':'3PM', 'fg3a':'3PA', 'ftm':'FTM', 'fta':'FTA', 'oreb':'OREB', 'dreb':'DREB', 'reb':'REB', 'ast':'AST', 'stl':'STL', 'blk':'BLK', 'turnover':'TOV', 'pf':'PF', 'pts':'PTS', 'fg_pct':'FG%', 'fg3_pct':'3P%', 'ft_pct':'FT%'},inplace=True)
+    # html = df.to_html(classes="table")
 
     return render(request, 'nbastats/player.html', {
         'fname': fname,
@@ -69,7 +69,7 @@ def player(request, playerid):
         'player_info': player_info,
         # 'current_stats': player_stats,
         'photo_url': photo_url,
-        'html': html
+        # 'html': html
     })
 
 # Login / Logout / Register

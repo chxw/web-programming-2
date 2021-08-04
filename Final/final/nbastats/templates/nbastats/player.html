@@ -15,7 +15,7 @@
         </li>
       </ul>
     </div>
-    <div class="card-body">
+    <div class="card-body bio">
       <img src="{{ photo_url }}" height="190" width="260" alt="Image of {{ fname }} {{ lname }}">
       <h5 class="card-title">{{ fname }} {{ lname }}</h5>
       <p class="card-text">Height: {{ player_info.height_feet }}'{{ player_info.height_inches }}"</p>
@@ -26,5 +26,7 @@
       </div>
       <a href="#" class="btn btn-primary">Go somewhere</a>
     </div>
+    <svg width="1200" height="750" class="graph" style="display:none;">
+    </svg>
 </div>
 {% endblock %}
