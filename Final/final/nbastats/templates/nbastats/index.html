@@ -1,5 +1,23 @@
 {% extends "nbastats/layout.html" %}
 
 {% block body %}
-    <h1>Hello</h1>
+<div class="sidebar col-lg-2 col-md-3">
+    <form method="GET" action="{% url 'search' %}" label="search">
+        <input class="search" type="text" name="q" placeholder="Search NBA players">
+    </form>
+</div>
+
+{% if results %}
+    <!-- Display results -->
+    {% for result in results %}
+    <div class="card mb-3">
+        <div class="col-md-8">
+            <div class="card-body">
+                <h5 class="card-title"><a href="{% url 'player' result.id %}">{{ result.first_name }} {{ result.last_name }}</a></h5>
+                <p class="card-text"> {{ result.team.full_name }} </p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% endif %}
 {% endblock %}
