@@ -11,7 +11,7 @@ import requests
 import pandas as pd
 
 from .models import User
-from .util import get_list_of_stats, get_player_NBAID, get_player_current_stats, get_player_photo, get_players, get_season_averages, get_team_name, get_player_info, get_page, PlayerGameStat
+from .util import get_list_of_stats, get_player_current_stats, get_player_photo, get_players, get_team_name, get_player_info, get_page, PlayerGameStat, get_season_avgs, search_players
 
 
 # # Get current stats
@@ -37,9 +37,9 @@ def index(request):
 def search(request):
     query = request.GET.get('q')
 
-    results = get_players(query)
+    results = search_players(query)
 
-    return render(request, 'nbastats/index.html', {
+    return render(request, 'nbastats/search_results.html', {
         'results': results
     })
 
@@ -47,29 +47,23 @@ def player(request, playerid):
 
     # Get player info
     player_info = get_player_info(playerid)
-    fname = player_info['first_name']
-    lname = player_info['last_name']
-
     # Get photo
-    NBA_id = get_player_NBAID(fname=fname, lname=lname)
-    photo_url = get_player_photo(NBA_id)
+    photo_url = get_player_photo(playerid)
 
-    # # Get season averages
-    # season_averages = get_season_averages(playerid)
-    # df = pd.DataFrame.from_dict(season_averages)
-    # df.set_index('season', inplace=True, drop=True)
-    # df.index.name=None
-    # df.drop(columns='player_id', inplace=True)
-    # df.rename(columns={'games_played':'GP', 'min':'MIN', 'fgm':'FGM', 'fga':'FGA', 'fg3m':'3PM', 'fg3a':'3PA', 'ftm':'FTM', 'fta':'FTA', 'oreb':'OREB', 'dreb':'DREB', 'reb':'REB', 'ast':'AST', 'stl':'STL', 'blk':'BLK', 'turnover':'TOV', 'pf':'PF', 'pts':'PTS', 'fg_pct':'FG%', 'fg3_pct':'3P%', 'ft_pct':'FT%'},inplace=True)
-    # html = df.to_html(classes="table")
+    # Get season averages
+    season_averages = get_season_avgs(playerid)
+    # Create df and clean
+    df = pd.DataFrame(season_averages)
+    df.set_index('season', inplace=True, drop=True)
+    df.index.name=None
+    df.rename(columns={'ppg':'PPG', 'rpg':'RPG', 'apg':'APG', 'mpg':'MPG', 'topg':'TOPG', 'spg':'SPG', 'bpg':'BPG', 'tpp':'TPP', 'gamesPlayed':'GP', 'gamesStarted':'GS', 'min':'MIN', 'fgm':'FGM', 'fga':'FGA', 'tpm':'3PM', 'tpa':'3PA', 'ftm':'FTM', 'fta':'FTA', 'offReb':'OREB', 'defReb':'DREB', 'totReb':'REB', 'assists':'AST', 'steals':'STL', 'blocks':'BLK', 'turnovers':'TOV', 'pFouls':'PF', 'points':'PTS', 'fgp':'FG%', 'fg3_pct':'3P%', 'ftp':'FT%', 'plusMinus':'+/-', 'dd2':'DD2', 'td3':'TD3'},inplace=True)
+    # Create HTML table for display
+    html = df.to_html(classes="table")
 
     return render(request, 'nbastats/player.html', {
-        'fname': fname,
-        'lname': lname,
         'player_info': player_info,
-        # 'current_stats': player_stats,
         'photo_url': photo_url,
-        # 'html': html
+        'html': html
     })
 
 # Login / Logout / Register

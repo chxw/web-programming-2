@@ -1,5 +1,6 @@
 import requests
 import datetime
+import re
 
 from json.decoder import JSONDecodeError
 from urllib.parse import quote
@@ -42,27 +43,42 @@ def get_players(query):
 
     return [page for sublist in results for page in sublist]
 
-def get_player_info(playerid):
-    url = players_endpoint+str(playerid)
+def search_players(query):
+    print(query)
+    results = []
+
+    year = datetime.date.today().year
+    url = "https://data.nba.net/data/10s/prod/v1/"+str(year)+"/players.json"
 
     response = requests.request("GET", url)
-    return response.json()
+    data = response.json()
+    players = data["league"]["standard"]
 
-def get_season_averages(player_id):
-    season = datetime.date.today().year - 1
+    found_players = []
+    for player in players:
+        full_name = ' '.join([player["firstName"], player["lastName"]])
+        if re.search(query, full_name, re.IGNORECASE):
+            found_players.append(player)
+
+    return found_players
+
+
+def get_season_avgs(player_id):
+    url = "https://data.nba.net/data/10s/prod/v1/2020/players/"+str(player_id)+"_profile.json"
+
+    response = requests.request("GET", url)
+    response_json = response.json()
+    reg_season = response_json['league']['standard']['stats']['regularSeason']['season']
+
+
     season_averages = []
+    for season in reg_season: 
+        datapt = season['total']
+        datapt['season'] = season['seasonYear']
+        season_averages.append(datapt)
 
-    while True:
-        url = season_endpoint+"?"+"season="+str(season)+"&"+"player_ids[]="+str(player_id)
-        response = requests.request("GET", url)
-        try:
-            data = response.json()
-            season_averages.append(data["data"][0])
-        except (JSONDecodeError, IndexError):
-            break
-        season -= 1
-    
     return season_averages
+
 
 def get_player_current_stats(playerid):
     url = stats_endpoint+"?"+"per_page=100&"+"seasons[]="+str(datetime.date.today().year-1)+"&"+"player_ids[]="+str(playerid)
@@ -137,21 +153,20 @@ class PlayerGameStat:
 
 # DATA.NBA.NET functions
 
-def get_player_NBAID(fname, lname):
-    # this returns height, weight, etc
-
+def get_player_info(playerid):
     year = datetime.date.today().year
     url = "https://data.nba.net/data/10s/prod/v1/"+str(year)+"/players.json"
     
     response = requests.request("GET", url)
     data = response.json()
     players = data["league"]["standard"]
-    NBAid = [player["personId"] for player in players if player["firstName"] == fname and player["lastName"] == lname]
-    
+    player = [player for player in players if player["personId"] == str(playerid)]
+
     try:
-        return NBAid[0]
+        return player[0]
     except IndexError:
         return None
+
 
 def get_player_photo(person_id):
     url = "https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/"+str(person_id)+".png"

@@ -1,6 +1,10 @@
-https://github.com/kshvmdn/nba.js/blob/master/docs/api/DATA.md
+# Introduction
+The NBA Stats app is designed to allow users to search for current NBA players and view traditional basketball stats. 
 
-https://data.nba.net/data/10s/prod/v1/2012/players.json 
-- 2012 to 2021
 
-https://www.balldontlie.io/
+
+
+# References
+- https://github.com/kshvmdn/nba.js/blob/master/docs/api/DATA.md
+- https://data.nba.net/
+- https://www.balldontlie.io/

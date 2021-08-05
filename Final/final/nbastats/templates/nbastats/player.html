@@ -5,23 +5,20 @@
     <div class="card-header">
       <ul class="nav nav-tabs card-header-tabs">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="true" href="#">Bio</a>
+          <a id="bio-link" class="nav-link active" aria-current="true" href="#">Bio</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Full Stats</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link graphed" href="#">Averages Graphed</a>
+          <a id="graph-link" class="nav-link" href="#">Averages Graphed</a>
         </li>
       </ul>
     </div>
     <div class="card-body bio">
       <img src="{{ photo_url }}" height="190" width="260" alt="Image of {{ fname }} {{ lname }}">
-      <h5 class="card-title">{{ fname }} {{ lname }}</h5>
-      <p class="card-text">Height: {{ player_info.height_feet }}'{{ player_info.height_inches }}"</p>
-      <p class="card-text">Position: {{ player_info.position }}</p>
-      <p class="card-text">Team: {{ player_info.team.full_name }}</p>
-      <div class="table-responsive sortable">
+      <h5 class="card-title">{{ player_info.firstName }} {{ player_info.lastName }}</h5>
+      <p class="card-text">Height: {{ player_info.heightFeet }}'{{ player_info.heightInches }}"</p>
+      <p class="card-text">Weight: {{ player_info.weightPounds }}</p>
+      <p class="card-text">Position: {{ player_info.teamSitesOnly.posFull }}</p>
+      <div class="table-responsive sortable table-hover table-sm">
         {{ html | safe }}
       </div>
       <a href="#" class="btn btn-primary">Go somewhere</a>

@@ -1,18 +1,53 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-    clickAveragesGraphed();
+    clickGraphLink();
+    clickBioLink();
 
 });
 
-function clickAveragesGraphed() {
-    let button = document.querySelector('.graphed');
+function clickGraphLink() {
+    let button = document.querySelector('#graph-link');
 
-    button.onclick = displayGraph;
+    if (button) {
+        button.onclick = displayGraph;
+    }
+}
+
+function clickBioLink() {
+    let button = document.querySelector('#bio-link');
+
+    if (button) {
+        button.onclick = displayBio;
+    }  
+}
+
+function displayBio() {
+    let graphLink = document.querySelector('#graph-link');
+    graphLink.classList.remove("active");
+
+    this.classList.add("active");
+
+    let bio = document.querySelector('.bio');
+    bio.style.display = 'block';
+
+    let graphDiv = document.querySelector('.graph-div');
+    graphDiv.style.display = 'none';
 }
 
 function displayGraph() {
 
     fetchSeasonAverages();
+
+    let bioLink = document.querySelector('#bio-link');
+    bioLink.classList.remove("active");
+
+    this.classList.add("active");
+
+    let bio = document.querySelector('.bio');
+    bio.style.display = 'none';
+
+    let graphDiv = document.querySelector('.graph-div');
+    graphDiv.style.display = 'block';
 
     async function fetchSeasonAverages() {
         const response = await fetch("https://data.nba.net/data/10s/prod/v1/2020/players/2544_profile.json");
@@ -23,8 +58,6 @@ function displayGraph() {
         let data = [];
         let parseTime = d3.timeParse("%Y");
 
-        console.log(regSeason);
-
         regSeason.forEach(function (season) {
             // Get stats
             let datapt = season.total; 
@@ -33,12 +66,6 @@ function displayGraph() {
             // Add to data list
             data.push(datapt);
         });
-
-        let bio = document.querySelector('.bio');
-        bio.style.display = 'none';
-
-        let graphDiv = document.querySelector('.graph-div');
-        graphDiv.style.display = 'block';
 
         // set the dimensions and margins of the graph
         let margin = {top: 10, right: 100, bottom: 30, left: 30},
@@ -57,8 +84,6 @@ function displayGraph() {
         // Group selections
         let attributes = Object.keys(data[0]);
 
-        console.log(data[0]);
-
         // add the options to the button
         d3.select("#selectButton")
             .selectAll('myOptions')
@@ -74,30 +99,34 @@ function displayGraph() {
             .range(d3.schemeSet2);
 
         // Add X axis --> it is a date format
-        let x = d3.scaleLinear()
-            .domain([0,10])
+        let x = d3.scaleTime()
+            .domain(d3.extent(data, function(d) { return d.year; }))
             .range([ 0, width ]);
         svg.append("g")
+            .attr("class", "x axis")
+            .text("Year")
             .attr("transform", "translate(0," + height + ")")
             .call(d3.axisBottom(x));
 
         // Add Y axis
         let y = d3.scaleLinear()
-            .domain( [0,20])
+            .domain([0, d3.max(data, function(d) { return +d.ppg; })])
             .range([ height, 0 ]);
         svg.append("g")
+            .attr("class", "y axis")
+            .text("PPG")
             .call(d3.axisLeft(y));
         
-        // Initialize line with attributes[0]
+        // Initialize line with 
         let line = svg
         .append('g')
         .append("path")
             .datum(data)
             .attr("d", d3.line()
             .x(function(d) { return x(+d.year); })
-            .y(function(d) { return y(+d.min); })
+            .y(function(d) { return y(+d.ppg); })
             )
-            .attr("stroke", function(d){ return myColor(d.min); })
+            .attr("stroke", function(d){ return myColor(d.ppg); })
             .style("stroke-width", 4)
             .style("fill", "none");
         
@@ -106,6 +135,23 @@ function displayGraph() {
 
             // Create new data with the selection?
             var dataFilter = data.map(function(d){return {year: d.year, value:d[selectedGroup]}; });
+
+            // Add X axis --> it is a date format
+            let x = d3.scaleTime()
+                .domain(d3.extent(data, function(d) { return d.year; }))
+                .range([ 0, width ]);
+            svg.selectAll("g.x.axis")
+                .text("Year")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x));
+
+            // Add Y axis
+            let y = d3.scaleLinear()
+                .domain([0, d3.max(data, function(d) { return +d[selectedGroup]; })])
+                .range([ height, 0 ]);
+            svg.selectAll("g.y.axis")
+                .text(getpropName(data, function(d) { return +d[selectedGroup];}))
+                .call(d3.axisLeft(y));
     
             // Give these new data to update line
             line
@@ -129,8 +175,11 @@ function displayGraph() {
     }
 }
 
-function getPropertyName(obj, expression) {
-    var res = {};
-    Object.keys(obj).map(k => { res[k] = () => k; });
-    return expression(res)();
-}
+function getpropName(obj, value){
+    for(let key in obj) {
+        if (obj[key] == value){
+             return key;
+        }
+    }
+    return false;
+ }
