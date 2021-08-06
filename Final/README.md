@@ -141,8 +141,9 @@ Displays different "views" of the site. These include:
 For this project, I definitely underestimated how long it would take to find a quality data source. I attempted the following data sources:
 1. https://rapidapi.com/nucklehead/api/nba-stats4/
 2. https://www.balldontlie.io/ (also https://rapidapi.com/theapiguy/api/free-nba/)
+3. data.nba.net
 
-I quickly realized that `407ms` latency and 
+I quickly realized that `407ms` latency is not suitable for a data source. I would call https://www.balldontlie.io/ two times in a row, and their server would reject my call for five minutes. It proved not feasible for building / testing, so I switched to data.nba.net, which I found through [this github resource](https://github.com/kshvmdn/nba.js/blob/master/docs/api/DATA.md). 
 
 
 # References
