@@ -71,19 +71,19 @@ The primary files that were worked on are highlighted below as `# here`. They wi
 ### `models.py`
 `User`, `Player`, `Bookmark` models are defined here. 
 
-User - basic Abstract User.
+`User`: basic Abstract User.
 
-Player - 
+`Player`:
     player_id = data.nba.net's equivalent to "personId" (see [here](https://data.nba.net/data/10s/prod/v1/2021/players.json))
 
-Bookmark -
+`Bookmark`:
     user = foreign key to `User` model
     player = foreign key to `Player` model. 
 
 ### `nbastats.js`
 Functionality for (1) `Averages Graphed` and (2) `(Un)Favorite`. 
 
-(1) Averages Graphed
+(1) `Averages Graphed`
 ```javascript
     clickElement('#graph-link', displayGraph);
 ```
@@ -94,7 +94,7 @@ When a user clicks "Averages Graphed" tab on `/player` page, display D3.js produ
 ```
 When a user clicks "Bio" tab on `/player` page, return to player page with image, background info, table of statistics. 
 
-(2) Un(Favorite)
+(2) `Un(Favorite)`
 ```javascript
     clickElement('.favorite', favoritePlayer);
 ```
@@ -134,6 +134,15 @@ Displays different "views" of the site. These include:
 - login_view: display `login.html` template and login user if user inputs correct username, password.
 - logout_view: log user out, redirect to indedx.
 - register: display `register.html` and register new user using form information.
+
+# Reflection
+
+## Data quality
+For this project, I definitely underestimated how long it would take to find a quality data source. I attempted the following data sources:
+1. https://rapidapi.com/nucklehead/api/nba-stats4/
+2. https://www.balldontlie.io/ (also https://rapidapi.com/theapiguy/api/free-nba/)
+
+I quickly realized that `407ms` latency and 
 
 
 # References
