@@ -143,7 +143,13 @@ For this project, I definitely underestimated how long it would take to find a q
 2. https://www.balldontlie.io/ (also https://rapidapi.com/theapiguy/api/free-nba/)
 3. data.nba.net
 
+For (1) and (2), I foudn that some of their
+
 I quickly realized that `407ms` latency is not suitable for a data source. I would call https://www.balldontlie.io/ two times in a row, and their server would reject my call for five minutes. It proved not feasible for building / testing, so I switched to data.nba.net, which I found through [this github resource](https://github.com/kshvmdn/nba.js/blob/master/docs/api/DATA.md). 
+
+## D3.js
+I also underestimated how long it would take to learn D3.js. On their site, they tell you it's best to learn by example. If I could find an example that fit my case and adjusted it to my needs, that would be best. I found [this example](https://www.d3-graph-gallery.com/graph/line_select.html), and it still took me 1.25 days to get working the way I wanted it to.
+
 
 
 # References
