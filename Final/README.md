@@ -22,8 +22,10 @@ Users can perform the following actions:
 
 *Please see NBA.com's [Stats Glossary](https://www.nba.com/stats/help/glossary/) if any abbreviation, such as "apg", "mpg" is unclear. 
 
+# Design
 
-# Files
+## Files
+The primary files that were worked on are highlighted below as `# here`. They will be discussed below.
 ```
 .
 ├── README.md
@@ -63,9 +65,22 @@ Users can perform the following actions:
         └── views.py                            # here
 ```
 
-# Design
+### `models.py`
+User, Player, Bookmark models are defined here. 
 
+User - basic Abstract User.
+Player - 
+    player_id = data.nba.net's equivalent to "personId" (see [here](https://data.nba.net/data/10s/prod/v1/2021/players.json))
+Bookmark -
+    user = foreign key to `User` model
+    player = foreign key to `Player` model. 
 
+`nbastats.js`
+Functionality for `Averages Graphed` and `(Un)Favorite`. 
+
+`templates/nbastats/*.html`
+`util.py`
+`views.py`
 
 
 # References
