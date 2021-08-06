@@ -20,6 +20,8 @@ Users can perform the following actions:
 5. (un)favorite players, and
 6. view favorited players on user profile page. 
 
+For a screen recorded demonstration of how to use the application, please see `demo.mov`.
+
 *Please see NBA.com's [Stats Glossary](https://www.nba.com/stats/help/glossary/) if any abbreviation, such as "apg", "mpg" is unclear. 
 
 # Design
@@ -29,6 +31,7 @@ The primary files that were worked on are highlighted below as `# here`. They wi
 ```
 .
 ├── README.md
+├── demo.mov
 └── final
     ├── db.sqlite3
     ├── final
@@ -66,21 +69,71 @@ The primary files that were worked on are highlighted below as `# here`. They wi
 ```
 
 ### `models.py`
-User, Player, Bookmark models are defined here. 
+`User`, `Player`, `Bookmark` models are defined here. 
 
 User - basic Abstract User.
+
 Player - 
     player_id = data.nba.net's equivalent to "personId" (see [here](https://data.nba.net/data/10s/prod/v1/2021/players.json))
+
 Bookmark -
     user = foreign key to `User` model
     player = foreign key to `Player` model. 
 
-`nbastats.js`
-Functionality for `Averages Graphed` and `(Un)Favorite`. 
+### `nbastats.js`
+Functionality for (1) `Averages Graphed` and (2) `(Un)Favorite`. 
 
-`templates/nbastats/*.html`
-`util.py`
-`views.py`
+(1) Averages Graphed
+```javascript
+    clickElement('#graph-link', displayGraph);
+```
+When a user clicks "Averages Graphed" tab on `/player` page, display D3.js produced line chart with dropdown menu.
+
+```javascript
+    clickElement('#bio-link', displayBio);
+```
+When a user clicks "Bio" tab on `/player` page, return to player page with image, background info, table of statistics. 
+
+(2) Un(Favorite)
+```javascript
+    clickElement('.favorite', favoritePlayer);
+```
+When a user clicks "Favorite" or "Unfavorite", send a `"PUT"` request to the site's `/bookmark` endpoint.
+
+### `templates/nbastats/*.html`
+`layout.html` - Baseline layout template that gets extended for/used in every other template below. 
+
+`index.html` - Home page that displays 5 featured players (randomly selected).
+
+`user.html` - User profile page that displays username and list of favorited players.
+
+`player.html` - Player page that displays player information, statistics, and averages graphed on dynamic D3.js line chart visualization.
+
+`login.html` - Login page.
+
+`register.html` - Register page. 
+
+### `util.py`
+
+Helper functions for the `views.py` file. These functions mostly request and clean data retreieved from the following endpoints:
+```python
+nba_endpoint = "https://data.nba.net/data/10s/prod/v1/"
+headshot_endpoint = "https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/1040x760/"
+logo_endpoint = "https://cdn.nba.com/logos/nba/"
+```
+
+### `views.py`
+
+Displays different "views" of the site. These include:
+
+- index: home page that retrieves 5 random NBA players and displays them in `index.html` template.
+- search: conduct search based on user's search query and displays them in `index.html` template.
+- player: player page that retreives and cleans player information, headshot, team name, team logo, and season averages, then displays them in `player.html` template. 
+- user: user profile page that retrieves a user's bookmarked (favorited) players and displays them in `user.html` template.
+- bookmark: API endpoint that either responds with `200` or `404` response code. Used by `nbastats.js` for editing a user's bookmarked (favorited) players. 
+- login_view: display `login.html` template and login user if user inputs correct username, password.
+- logout_view: log user out, redirect to indedx.
+- register: display `register.html` and register new user using form information.
 
 
 # References

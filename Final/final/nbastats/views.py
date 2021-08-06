@@ -21,7 +21,8 @@ def index(request):
         player_info["photo_url"] = get_player_photo(player_info["personId"])
 
     return render(request, 'nbastats/index.html', {
-        'results': results
+        'results': results,
+        'featured': True
     })
 
 
@@ -32,7 +33,7 @@ def search(request):
     for player_info in results:
         player_info["photo_url"] = get_player_photo(player_info["personId"])
 
-    return render(request, 'nbastats/search_results.html', {
+    return render(request, 'nbastats/index.html', {
         'results': results
     })
 
