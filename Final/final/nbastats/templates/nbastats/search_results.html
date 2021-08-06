@@ -3,22 +3,36 @@
 {% block body %}
 <div class="sidebar col-lg-2 col-md-3">
     <form method="GET" action="{% url 'search' %}" label="search">
-        <input class="search" type="text" name="q" placeholder="Search NBA players">
+        <input class="search" type="text" name="q" placeholder="Search active NBA players">
     </form>
 </div>
 
 {% if results %}
-    <!-- Display results -->
-    {% for result in results %}
-    <div class="card mb-3">
+<!-- Display results -->
+{% for result in results %}
+<div class="card mb-3">
+    <div class="row g-0">
+        <div class="col-md-4">
+            <img src="{{ result.photo_url }}" class="img-fluid rounded-start"
+                alt="Photo of {{ result.firstName }} {{ result.lastName }}" style="margin-top: 15px;
+                margin-bottom: 15px;
+                margin-right: 15px;
+                margin-left: 15px;">
+        </div>
         <div class="col-md-8">
             <div class="card-body">
-                <h5 class="card-title"><a href="{% url 'player' result.personId %}">{{ result.firstName }} {{ result.lastName }}</a></h5>
+                <h5 class="card-title"><a href="{% url 'player' result.personId %}">{{ result.firstName }}
+                        {{ result.lastName }}</a></h5>
+                <p class="card-text">Team: {{ result.team }}</p>
+                <p class="card-text">Height: {{ result.heightFeet }}'{{ result.heightInches }}"</p>
+                <p class="card-text">Weight: {{ result.weightPounds }}</p>
+                <p class="card-text">Position: {{ result.teamSitesOnly.posFull }}</p>
             </div>
         </div>
     </div>
-    {% endfor %}
+</div>
+{% endfor %}
 {% else %}
-    <h1> No results.</h1>
+<h1> No results.</h1>
 {% endif %}
 {% endblock %}

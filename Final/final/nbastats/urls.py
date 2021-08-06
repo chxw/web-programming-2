@@ -9,4 +9,6 @@ urlpatterns = [
     path("register", views.register, name="register"),
     path("search", views.search, name="search"),
     path("player/<int:playerid>", views.player, name="player"),
+    path("bookmark", views.bookmark, name="bookmark"),
+    path("user/<str:username>", views.user, name="user")
 ]

@@ -2,31 +2,61 @@
 
 {% block body %}
 <div class="card text-center">
-    <div class="card-header">
-      <ul class="nav nav-tabs card-header-tabs">
-        <li class="nav-item">
-          <a id="bio-link" class="nav-link active" aria-current="true" href="#">Bio</a>
-        </li>
-        <li class="nav-item">
-          <a id="graph-link" class="nav-link" href="#">Averages Graphed</a>
-        </li>
-      </ul>
-    </div>
-    <div class="card-body bio">
-      <img src="{{ photo_url }}" height="190" width="260" alt="Image of {{ fname }} {{ lname }}">
-      <h5 class="card-title">{{ player_info.firstName }} {{ player_info.lastName }}</h5>
-      <p class="card-text">Height: {{ player_info.heightFeet }}'{{ player_info.heightInches }}"</p>
-      <p class="card-text">Weight: {{ player_info.weightPounds }}</p>
-      <p class="card-text">Position: {{ player_info.teamSitesOnly.posFull }}</p>
-      <div class="table-responsive sortable table-hover table-sm">
-        {{ html | safe }}
+  <!-- Header -->
+  <div class="card-header">
+    <ul class="nav nav-tabs card-header-tabs">
+      <li class="nav-item">
+        <a id="bio-link" class="nav-link active" aria-current="true">Bio</a>
+      </li>
+      <li class="nav-item">
+        <a id="graph-link" class="nav-link">Averages Graphed</a>
+      </li>
+    </ul>
+  </div>
+  <!-- Bio -->
+  <div class="card-body bio">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm">
+          <img src="{{ player_info.photo_url }}" height="190" width="260" alt="Image of {{ fname }} {{ lname }}">
+          <h5 class="card-title"><img src="{{ player_info.team_url }}" height="100" alt="Image of {{ player_info.team }}">
+            {{ player_info.firstName }} {{ player_info.lastName }}</h5>
+          {% if user.is_authenticated %}
+          {% if show_favorite %}
+          <button id="favorite" type="button" class="btn btn-primary favorite">
+            Favorite
+          </button>
+          {% else %}
+          <button id="unfavorite" type="button" class="btn btn-primary favorite">
+            Unfavorite
+          </button>
+          {% endif %}
+          {% endif %}
+        </div>
+        <div class="col-sm">
+          <p class="card-text"><b>Team:</b> {{ player_info.team }}</p>
+          <p class="card-text"><b>Height:</b> {{ player_info.heightFeet }}'{{ player_info.heightInches }}"</p>
+          <p class="card-text"><b>Weight:</b> {{ player_info.weightPounds }} lbs</p>
+          <p class="card-text"><b>Position:</b> {{ player_info.teamSitesOnly.posFull }}</p>
+          <p class="card-text"><b>Date of Birth:</b> {{ player_info.dateOfBirthUTC }}</p>
+          <p class="card-text"><b>Draft:</b> {{ player_info.draft.seasonYear }} 
+            R{{ player_info.draft.roundNum }} Pick {{ player_info.draft.pickNum }} </p>
+          <p class="card-text"><b>Years of Experience:</b> {{ player_info.yearsPro }}</p>
+          <p class="card-text"><b>College:</b> {{ player_info.collegeName }}</p>
+          <p class="card-text"><b>Country:</b> {{ player_info.country }}</p>
+        </div>
       </div>
-      <a href="#" class="btn btn-primary">Go somewhere</a>
     </div>
-    <!-- Graph -->
-    <div class="graph-div" style="display:none;">
-        <select id="selectButton"></select>
-        <svg width="1200" height="750" class="graph"></svg>
+    <p></p>
+    <div class="table-responsive sortable table-hover table-sm">
+      {{ html | safe }}
     </div>
+  </div>
+  <!-- Graph -->
+  <div class="card-body container graph-div" style="display:none;">
+    <select id="selectButton" class="form-select"></select>
+    <svg class="graph .img-fluid card-text" width="960" height="500" viewBox="0 0 960 500"
+      preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
 </div>
 {% endblock %}
